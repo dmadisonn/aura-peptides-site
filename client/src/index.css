@@ -1,0 +1,302 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --button-outline: rgba(0,0,0, .10);
+  --badge-outline: rgba(0,0,0, .05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .08);
+  /* Aura Peptides — warm ivory + deep ink + champagne palette */
+  --background: 36 30% 96%;
+  --foreground: 30 14% 11%;
+  --border: 32 14% 88%;
+  --card: 0 0% 100%;
+  --card-foreground: 30 14% 11%;
+  --card-border: 32 14% 90%;
+  --sidebar: 36 24% 94%;
+  --sidebar-foreground: 30 14% 11%;
+  --sidebar-border: 32 14% 88%;
+  --sidebar-primary: 30 14% 11%;
+  --sidebar-primary-foreground: 36 30% 96%;
+  --sidebar-accent: 36 22% 91%;
+  --sidebar-accent-foreground: 30 14% 11%;
+  --sidebar-ring: 30 14% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 30 14% 11%;
+  --popover-border: 32 14% 88%;
+  --primary: 30 14% 13%;
+  --primary-foreground: 36 30% 96%;
+  --secondary: 36 22% 92%;
+  --secondary-foreground: 30 14% 13%;
+  --muted: 36 20% 93%;
+  --muted-foreground: 30 8% 40%;
+  --accent: 34 38% 78%;
+  --accent-foreground: 30 14% 13%;
+  --destructive: 8 55% 42%;
+  --destructive-foreground: 36 30% 96%;
+  --input: 32 14% 80%;
+  --ring: 30 14% 13%;
+  --chart-1: 30 14% 13%;
+  --chart-2: 34 38% 55%;
+  --chart-3: 30 8% 40%;
+  --chart-4: 34 30% 70%;
+  --chart-5: 30 6% 60%;
+  --font-sans: 'Manrope', sans-serif;
+  --font-display: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: .5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.dark {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
+  /* Aura Peptides — deep ink dark palette with warm cream + champagne accents */
+  --background: 30 10% 8%;
+  --foreground: 36 22% 92%;
+  --border: 30 8% 18%;
+  --card: 30 10% 11%;
+  --card-foreground: 36 22% 92%;
+  --card-border: 30 8% 17%;
+  --sidebar: 30 10% 10%;
+  --sidebar-foreground: 36 22% 92%;
+  --sidebar-border: 30 8% 17%;
+  --sidebar-primary: 36 22% 88%;
+  --sidebar-primary-foreground: 30 10% 8%;
+  --sidebar-accent: 30 8% 15%;
+  --sidebar-accent-foreground: 36 22% 92%;
+  --sidebar-ring: 36 22% 88%;
+  --popover: 30 10% 11%;
+  --popover-foreground: 36 22% 92%;
+  --popover-border: 30 8% 18%;
+  --primary: 36 22% 90%;
+  --primary-foreground: 30 10% 8%;
+  --secondary: 30 8% 16%;
+  --secondary-foreground: 36 22% 90%;
+  --muted: 30 8% 14%;
+  --muted-foreground: 36 12% 60%;
+  --accent: 34 30% 55%;
+  --accent-foreground: 30 10% 8%;
+  --destructive: 8 55% 50%;
+  --destructive-foreground: 36 22% 92%;
+  --input: 30 8% 22%;
+  --ring: 36 22% 88%;
+  --chart-1: 36 22% 88%;
+  --chart-2: 34 30% 60%;
+  --chart-3: 36 12% 60%;
+  --chart-4: 30 8% 45%;
+  --chart-5: 34 20% 35%;
+  --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+
+  @keyframes aura-ripple {
+    0%   { transform: scale(0.15); opacity: 0; }
+    15%  { opacity: 0.55; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .aura-ripple {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: aura-ripple 5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+    will-change: transform, opacity;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aura-ripple {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+}
+
+.pac-container {
+  font-family: 'Manrope', sans-serif;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  z-index: 9999;
+  background: hsl(var(--card));
+}
+
+.pac-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: hsl(var(--foreground));
+  border-top: 1px solid hsl(var(--border));
+  cursor: pointer;
+}
+
+.pac-item:first-child {
+  border-top: none;
+}
+
+.pac-item:hover {
+  background: hsl(var(--muted));
+}
+
+.pac-item-query {
+  font-size: 13px;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+.pac-icon {
+  display: none;
+}
+
+.pac-item-selected {
+  background: hsl(var(--muted));
+}
+
+.dark .pac-container {
+  background: hsl(var(--card));
+}
+
+.dark .pac-item {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark .pac-item:hover,
+.dark .pac-item-selected {
+  background: hsl(var(--muted));
+}
+
+.dark .pac-item-query {
+  color: hsl(var(--foreground));
+}
