@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Minus, Plus, Trash2, ArrowLeft, ShoppingCart, Truck, MapPin, Lock, FileText, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/stores/cart";
@@ -87,6 +88,7 @@ export default function CartPage() {
   };
 
   const [invoiceSuccess, setInvoiceSuccess] = useState(false);
+  const [researchCertified, setResearchCertified] = useState(false);
   const [invoiceOrderId, setInvoiceOrderId] = useState("");
 
   const invoiceMutation = useMutation({
@@ -132,6 +134,14 @@ export default function CartPage() {
         toast({ title: "Shipping address required", description: "Please fill in all required address fields.", variant: "destructive" });
         return;
       }
+    }
+    if (!researchCertified) {
+      toast({
+        title: "Research certification required",
+        description: "Please certify that you are a qualified researcher before placing an order.",
+        variant: "destructive",
+      });
+      return;
     }
     invoiceMutation.mutate();
   };
@@ -219,6 +229,14 @@ export default function CartPage() {
         });
         return;
       }
+    }
+    if (!researchCertified) {
+      toast({
+        title: "Research certification required",
+        description: "Please certify that you are a qualified researcher before placing an order.",
+        variant: "destructive",
+      });
+      return;
     }
     checkoutMutation.mutate();
   };
@@ -596,6 +614,22 @@ export default function CartPage() {
               </div>
             )}
 
+            {/* Researcher Certification Checkbox */}
+            <div className={`rounded-lg border p-4 mt-2 transition-colors ${researchCertified ? 'border-primary/40 bg-primary/5' : 'border-yellow-500/40 bg-yellow-500/5'}`}>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="research-cert"
+                  checked={researchCertified}
+                  onCheckedChange={(checked) => setResearchCertified(!!checked)}
+                  className="mt-0.5 shrink-0"
+                />
+                <label htmlFor="research-cert" className="text-[11px] text-muted-foreground leading-relaxed cursor-pointer">
+                  <span className="font-semibold text-foreground">I certify that I am a qualified researcher</span> purchasing these compounds exclusively for legitimate in-vitro laboratory research. I am 18 years of age or older, will not use these products for human or animal consumption, and agree to the{" "}
+                  <a href="/terms" className="text-primary underline underline-offset-2" target="_blank" rel="noopener noreferrer">Terms of Service</a>.
+                  These statements have not been evaluated by the FDA.
+                </label>
+              </div>
+            </div>
             <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed text-center" data-testid="text-cart-disclaimer">
               For research use only. Not for human or veterinary use. Not intended for diagnostic or therapeutic purposes.
             </p>
