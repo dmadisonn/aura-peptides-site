@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const PgSessionStore = require("connect-pg-simple")(session);
 const { Pool } = require("pg");
 const crypto = require("crypto");
 
@@ -10,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(session({
+  store: new PgSessionStore({ pool, createTableIfMissing: true }),
   secret: process.env.SESSION_SECRET || "aura-secret-2026",
   resave: false,
   saveUninitialized: false,
