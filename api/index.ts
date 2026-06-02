@@ -62,7 +62,7 @@ app.get("/api/products", async (_req, res) => {
 
 app.get("/api/products/:slug", async (req, res) => {
   try {
-    const [p] = await db.select().from(products).where(eq(products.slug, req.params.slug));
+    const [p] = await db.select().from(products).where(eq(products.slug, String(req.params.slug)));
     if (!p) return res.status(404).json({ message: "Not found" });
     res.json(p);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -179,7 +179,7 @@ app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
   try {
     const [p] = await db.update(products)
       .set({ ...req.body, updatedAt: new Date() })
-      .where(eq(products.id, req.params.id))
+      .where(eq(products.id, String(req.params.id)))
       .returning();
     res.json(p);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -187,7 +187,7 @@ app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
 
 app.delete("/api/admin/products/:id", requireAdmin, async (req, res) => {
   try {
-    await db.delete(products).where(eq(products.id, req.params.id));
+    await db.delete(products).where(eq(products.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
@@ -219,7 +219,7 @@ app.patch("/api/admin/orders/:id", requireAdmin, async (req, res) => {
   try {
     const [o] = await db.update(orders)
       .set({ ...req.body, updatedAt: new Date() })
-      .where(eq(orders.id, req.params.id))
+      .where(eq(orders.id, String(req.params.id)))
       .returning();
     res.json(o);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -229,7 +229,7 @@ app.post("/api/admin/orders/:id/mark-paid", requireAdmin, async (req, res) => {
   try {
     await db.update(orders)
       .set({ status: "paid", updatedAt: new Date() })
-      .where(eq(orders.id, req.params.id));
+      .where(eq(orders.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
@@ -252,7 +252,7 @@ app.get("/api/admin/newsletter", requireAdmin, async (_req, res) => {
 
 app.delete("/api/admin/newsletter/:id", requireAdmin, async (req, res) => {
   try {
-    await db.delete(newsletterSubscribers).where(eq(newsletterSubscribers.id, req.params.id));
+    await db.delete(newsletterSubscribers).where(eq(newsletterSubscribers.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
@@ -286,7 +286,7 @@ app.patch("/api/admin/affiliates/:id", requireAdmin, async (req, res) => {
   try {
     const [a] = await db.update(affiliates)
       .set(req.body)
-      .where(eq(affiliates.id, req.params.id))
+      .where(eq(affiliates.id, String(req.params.id)))
       .returning();
     res.json(a);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -316,7 +316,7 @@ app.patch("/api/admin/certificates/:id", requireAdmin, async (req, res) => {
   try {
     const [c] = await db.update(certificates)
       .set(req.body)
-      .where(eq(certificates.id, req.params.id))
+      .where(eq(certificates.id, String(req.params.id)))
       .returning();
     res.json(c);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -324,7 +324,7 @@ app.patch("/api/admin/certificates/:id", requireAdmin, async (req, res) => {
 
 app.delete("/api/admin/certificates/:id", requireAdmin, async (req, res) => {
   try {
-    await db.delete(certificates).where(eq(certificates.id, req.params.id));
+    await db.delete(certificates).where(eq(certificates.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
@@ -353,7 +353,7 @@ app.patch("/api/admin/shipping-options/:id", requireAdmin, async (req, res) => {
   try {
     const [opt] = await db.update(shippingOptions)
       .set(req.body)
-      .where(eq(shippingOptions.id, req.params.id))
+      .where(eq(shippingOptions.id, String(req.params.id)))
       .returning();
     res.json(opt);
   } catch (e: any) { res.status(500).json({ message: e.message }); }
@@ -361,7 +361,7 @@ app.patch("/api/admin/shipping-options/:id", requireAdmin, async (req, res) => {
 
 app.delete("/api/admin/shipping-options/:id", requireAdmin, async (req, res) => {
   try {
-    await db.delete(shippingOptions).where(eq(shippingOptions.id, req.params.id));
+    await db.delete(shippingOptions).where(eq(shippingOptions.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
@@ -419,14 +419,14 @@ app.patch("/api/admin/users/:id", requireSuper, async (req, res) => {
   try {
     const update: any = { ...req.body };
     if (update.password) update.password = hashPw(update.password);
-    const [u] = await db.update(users).set(update).where(eq(users.id, req.params.id)).returning();
+    const [u] = await db.update(users).set(update).where(eq(users.id, String(req.params.id))).returning();
     res.json({ ...u, password: undefined });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
 
 app.delete("/api/admin/users/:id", requireSuper, async (req, res) => {
   try {
-    await db.delete(users).where(eq(users.id, req.params.id));
+    await db.delete(users).where(eq(users.id, String(req.params.id)));
     res.json({ success: true });
   } catch (e: any) { res.status(500).json({ message: e.message }); }
 });
