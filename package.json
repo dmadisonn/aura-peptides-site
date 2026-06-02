@@ -1,7 +1,6 @@
 {
   "name": "aura-peptides",
   "version": "1.0.0",
-  "type": "module",
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
