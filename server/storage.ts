@@ -213,7 +213,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCertificates(): Promise<Certificate[]> {
-    return db.select().from(certificates).orderBy(desc(certificates.createdAt));
+    const rows = await db.select().from(certificates).orderBy(desc(certificates.createdAt));
+    // Normalize snake_case DB keys to camelCase for frontend compatibility
+    return rows.map((r: any) => ({
+      id: r.id,
+      productId: r.productId ?? r.product_id ?? null,
+      productName: r.productName ?? r.product_name ?? "",
+      batchNumber: r.batchNumber ?? r.batch_number ?? "",
+      purity: r.purity ?? null,
+      testedBy: r.testedBy ?? r.tested_by ?? null,
+      testDate: r.testDate ?? r.test_date ?? null,
+      fileUrl: r.fileUrl ?? r.file_url ?? null,
+      fileType: r.fileType ?? r.file_type ?? null,
+      title: r.title ?? null,
+      thumbnailUrl: r.thumbnailUrl ?? r.thumbnail_url ?? null,
+      notes: r.notes ?? null,
+      createdAt: r.createdAt ?? r.created_at ?? null,
+    })) as Certificate[];
   }
 
   async createCertificate(cert: InsertCertificate): Promise<Certificate> {
