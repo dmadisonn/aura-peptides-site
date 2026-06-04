@@ -5,7 +5,12 @@ const { Pool } = require("pg");
 const crypto = require("crypto");
 
 const app = express();
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+let pool = null;
+try {
+  if (process.env.DATABASE_URL) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  }
+} catch(e) { console.warn("DB pool init failed:", e.message); }
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -154,7 +159,7 @@ app.use(session({
 }));
 
 function hashPw(p) { return crypto.createHash("sha256").update(p).digest("hex"); }
-function q(sql, params) { return pool.query(sql, params).then(r => r.rows); }
+function q(sql, params) { if (!pool) return Promise.resolve([]); return pool.query(sql, params).then(r => r.rows); }
 function requireAdmin(req, res, next) {
   if (!req.session?.adminUser) return res.status(401).json({ message: "Unauthorized" });
   next();
