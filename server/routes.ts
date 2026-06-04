@@ -803,7 +803,23 @@ export async function registerRoutes(
   app.get("/api/certificates", async (_req, res) => {
     try {
       const certs = await storage.getCertificates();
-      res.json(certs);
+      // Map snake_case DB columns to camelCase for frontend
+      const mapped = certs.map((c: any) => ({
+        id: c.id,
+        productId: c.productId ?? c.product_id ?? null,
+        productName: c.productName ?? c.product_name ?? "",
+        batchNumber: c.batchNumber ?? c.batch_number ?? "",
+        purity: c.purity ?? null,
+        testedBy: c.testedBy ?? c.tested_by ?? null,
+        testDate: c.testDate ?? c.test_date ?? null,
+        fileUrl: c.fileUrl ?? c.file_url ?? null,
+        fileType: c.fileType ?? c.file_type ?? null,
+        title: c.title ?? null,
+        thumbnailUrl: c.thumbnailUrl ?? c.thumbnail_url ?? null,
+        notes: c.notes ?? null,
+        createdAt: c.createdAt ?? c.created_at ?? null,
+      }));
+      res.json(mapped);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
