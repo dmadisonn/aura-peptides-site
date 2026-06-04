@@ -19,6 +19,8 @@ import AdminLoginPage from "@/pages/admin-login";
 import AdminPage from "@/pages/admin";
 import AboutPage from "@/pages/about";
 import TermsPage from "@/pages/terms";
+import RefundPage from "@/pages/refund";
+import ShippingPage from "@/pages/shipping";
 import PrivacyPage from "@/pages/privacy";
 import CertificatesPage from "@/pages/certificates";
 import ContactPage from "@/pages/contact";

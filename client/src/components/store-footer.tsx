@@ -74,6 +74,16 @@ export function StoreFooter() {
                       Privacy
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/refund" className="text-foreground/80 hover:text-foreground transition-colors" data-testid="link-footer-refund">
+                      Refund Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/shipping" className="text-foreground/80 hover:text-foreground transition-colors" data-testid="link-footer-shipping">
+                      Shipping Policy
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -81,9 +91,10 @@ export function StoreFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-8 border-t border-border/60">
-          <p className="text-xs text-muted-foreground text-center sm:text-left" data-testid="text-copyright">
-            &copy; {new Date().getFullYear()} Aura Peptides. All rights reserved.
-          </p>
+          <div className="text-xs text-muted-foreground text-center sm:text-left space-y-1">
+            <p data-testid="text-copyright">&copy; {new Date().getFullYear()} Aura Peptides. All rights reserved.</p>
+            <p>Darci Madison LLC &bull; support@aurapepts.bio</p>
+          </div>
           <p className="text-[11px] text-muted-foreground/80 leading-relaxed text-center sm:text-right sm:whitespace-nowrap max-w-xs sm:max-w-none">
             All products are sold strictly for laboratory research use only. Not for human or veterinary use.
           </p>
