@@ -198,6 +198,16 @@ app.get("/api/coas", async (req, res) => {
   catch (e) { res.json([]); }
 });
 
+
+// ── Admin Session (for login page check) ──────────────────────────────────────
+app.get("/api/admin/session", (req, res) => {
+  if (req.session.adminAuthenticated) {
+    res.json({ user: { username: process.env.ADMIN_USERNAME || "darcimadison" } });
+  } else {
+    res.status(401).json({ user: null });
+  }
+});
+
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", db: !!pool, timestamp: new Date().toISOString() });
