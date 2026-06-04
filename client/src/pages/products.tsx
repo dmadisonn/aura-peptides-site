@@ -1,7 +1,5 @@
 import { Link } from "wouter";
 import { ProductCard } from "@/components/product-card";
-import { StoreHeader } from "@/components/store-header";
-import { StoreFooter } from "@/components/store-footer";
 import { getAllProducts } from "@/lib/products";
 
 export default function ProductsPage() {
@@ -9,7 +7,6 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <StoreHeader />
       <main className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mb-2">Research Use Only</p>
@@ -22,7 +19,6 @@ export default function ProductsPage() {
           ))}
         </div>
       </main>
-      <StoreFooter />
     </div>
   );
 }

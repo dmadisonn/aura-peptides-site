@@ -198,7 +198,7 @@ app.get("/api/settings/affiliate-banner", async (_req, res) => {
 app.get("/api/settings/free-shipping-threshold", async (_req, res) => {
   try {
     const [s] = await q("SELECT free_shipping_threshold FROM site_settings LIMIT 1");
-    res.json({ threshold: s?.free_shipping_threshold ?? 10000 });
+    res.json({ threshold: s?.free_shipping_threshold ?? 100 });
   } catch { res.json({ threshold: 10000 }); }
 });
 

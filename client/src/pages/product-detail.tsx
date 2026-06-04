@@ -2,8 +2,6 @@ import { useParams, Link } from "wouter";
 import { ShoppingCart, ArrowLeft, FlaskConical, Shield, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StoreHeader } from "@/components/store-header";
-import { StoreFooter } from "@/components/store-footer";
 import { useCart } from "@/stores/cart";
 import { getProduct } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
@@ -36,7 +34,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <StoreHeader />
       <main className="container mx-auto px-4 py-12">
         <Link href="/products">
           <Button variant="ghost" className="mb-6"><ArrowLeft className="mr-2 h-4 w-4" />Back to Catalog</Button>
@@ -75,7 +72,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </main>
-      <StoreFooter />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { FreeShippingBanner } from "@/components/free-shipping-banner";
 import { ArrowRight, FlaskConical, Shield, Sparkles, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";

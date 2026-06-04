@@ -1,11 +1,8 @@
-import { StoreHeader } from "@/components/store-header";
-import { StoreFooter } from "@/components/store-footer";
 
 export default function TermsPage() {
   const effectiveDate = "June 2, 2026";
   return (
     <div className="min-h-screen bg-background">
-      <StoreHeader />
       <main className="container mx-auto px-4 py-12 max-w-3xl">
         <p className="text-xs font-semibold tracking-[0.3em] uppercase mb-3 text-primary">Legal</p>
         <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
@@ -162,7 +159,6 @@ export default function TermsPage() {
 
         </div>
       </main>
-      <StoreFooter />
     </div>
   );
 }
