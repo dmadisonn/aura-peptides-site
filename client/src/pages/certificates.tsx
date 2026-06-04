@@ -24,7 +24,7 @@ export default function CertificatesPage() {
   });
   const [viewCert, setViewCert] = useState<Certificate | null>(null);
   const [zoomed, setZoomed] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid'|'table'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -62,74 +62,18 @@ export default function CertificatesPage() {
         <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground mb-3">
           Lab Documentation
         </p>
-        <h1
-          className="font-display text-4xl sm:text-5xl tracking-tight font-normal"
-          data-testid="text-coa-heading"
-        >
+        <h1 className="font-display text-4xl sm:text-5xl tracking-tight font-normal" data-testid="text-coa-heading">
           Certificates of Analysis
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-4 max-w-xl mx-auto leading-relaxed">
-          Every compound is independently tested by U.S. laboratories. Reports and identifiers are published here for open review and verification.
+          Every batch is independently tested by U.S. laboratories. Batch numbers, purity results, and test dates are published here for open verification.
         </p>
+        <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 border border-yellow-500/30 bg-yellow-500/5 rounded text-[10px] text-yellow-600">
+          ⚠ All products for laboratory research use only · Not for human consumption
+        </div>
       </div>
 
       {isLoading ? (
-        {/* View toggle */}
-        <div className="flex justify-end mb-4">
-          <div className="flex rounded-md border overflow-hidden text-xs">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
-            >Grid</button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
-            >Table</button>
-          </div>
-        </div>
-
-        {viewMode === 'table' ? (
-          <div className="rounded-lg border overflow-hidden">
-            <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-muted/60 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <span className="col-span-3">Product</span>
-              <span className="col-span-2">Batch #</span>
-              <span className="col-span-2">Purity</span>
-              <span className="col-span-2">Test Date</span>
-              <span className="col-span-2">Lab</span>
-              <span className="col-span-1 text-right">COA</span>
-            </div>
-            {certificates.map((cert, i) => (
-              <div key={cert.id} className={`grid grid-cols-12 gap-2 px-5 py-3.5 items-center border-b last:border-0 text-sm hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
-                <div className="col-span-3">
-                  <p className="font-medium text-sm leading-tight">{cert.productName}</p>
-                </div>
-                <div className="col-span-2">
-                  {cert.batchNumber
-                    ? <span className="font-mono text-xs text-muted-foreground">{cert.batchNumber}</span>
-                    : <span className="text-xs text-muted-foreground/50 italic">On request</span>}
-                </div>
-                <div className="col-span-2">
-                  {cert.purity
-                    ? <span className="text-xs font-bold text-green-600">{cert.purity}</span>
-                    : <span className="text-xs text-muted-foreground/50">—</span>}
-                </div>
-                <div className="col-span-2">
-                  <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
-                </div>
-                <div className="col-span-1 flex justify-end">
-                  {cert.fileUrl ? (
-                    <button onClick={() => { setViewCert(cert); setZoomed(false); }} className="text-xs text-primary hover:underline font-medium">PDF</button>
-                  ) : (
-                    <span className="text-xs text-muted-foreground/50">—</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="aspect-[3/4] rounded-md" />
@@ -145,105 +89,109 @@ export default function CertificatesPage() {
           </p>
         </div>
       ) : (
-        {/* View toggle */}
-        <div className="flex justify-end mb-4">
-          <div className="flex rounded-md border overflow-hidden text-xs">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
-            >Grid</button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
-            >Table</button>
-          </div>
-        </div>
-
-        {viewMode === 'table' ? (
-          <div className="rounded-lg border overflow-hidden">
-            <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-muted/60 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <span className="col-span-3">Product</span>
-              <span className="col-span-2">Batch #</span>
-              <span className="col-span-2">Purity</span>
-              <span className="col-span-2">Test Date</span>
-              <span className="col-span-2">Lab</span>
-              <span className="col-span-1 text-right">COA</span>
-            </div>
-            {certificates.map((cert, i) => (
-              <div key={cert.id} className={`grid grid-cols-12 gap-2 px-5 py-3.5 items-center border-b last:border-0 text-sm hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
-                <div className="col-span-3">
-                  <p className="font-medium text-sm leading-tight">{cert.productName}</p>
-                </div>
-                <div className="col-span-2">
-                  {cert.batchNumber
-                    ? <span className="font-mono text-xs text-muted-foreground">{cert.batchNumber}</span>
-                    : <span className="text-xs text-muted-foreground/50 italic">On request</span>}
-                </div>
-                <div className="col-span-2">
-                  {cert.purity
-                    ? <span className="text-xs font-bold text-green-600">{cert.purity}</span>
-                    : <span className="text-xs text-muted-foreground/50">—</span>}
-                </div>
-                <div className="col-span-2">
-                  <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
-                </div>
-                <div className="col-span-1 flex justify-end">
-                  {cert.fileUrl ? (
-                    <button onClick={() => { setViewCert(cert); setZoomed(false); }} className="text-xs text-primary hover:underline font-medium">PDF</button>
-                  ) : (
-                    <span className="text-xs text-muted-foreground/50">—</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {certificates.map((cert) => (
-            <Card
-              key={cert.id}
-              className="overflow-visible hover-elevate cursor-pointer"
-              data-testid={`card-coa-public-${cert.id}`}
-            >
+        <>
+          {/* View toggle */}
+          <div className="flex justify-end mb-4">
+            <div className="flex rounded-md border overflow-hidden text-xs">
               <button
-                className="block w-full"
-                onClick={() => { setViewCert(cert); setZoomed(false); }}
-              >
-                {cert.fileType === "image" ? (
-                  <div className="aspect-[3/4] overflow-hidden rounded-t-md">
-                    <img
-                      src={cert.fileUrl}
-                      alt={cert.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <PdfThumbnail thumbnailUrl={cert.thumbnailUrl} />
-                )}
-              </button>
-              <div className="p-3 space-y-1">
-                <p className="text-xs font-semibold truncate leading-tight" data-testid={`text-coa-title-${cert.id}`}>
-                  {cert.productName}
-                </p>
-                {cert.batchNumber && (
-                  <p className="text-[10px] text-muted-foreground font-mono">Batch #{cert.batchNumber}</p>
-                )}
-                {cert.purity && (
-                  <p className="text-[10px] font-bold text-green-600">Purity: {cert.purity}</p>
-                )}
-                {cert.testDate && (
-                  <p className="text-[10px] text-muted-foreground/70">Tested: {cert.testDate}</p>
-                )}
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+              >Grid</button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+              >Table</button>
+            </div>
+          </div>
+
+          {/* Table view */}
+          {viewMode === 'table' ? (
+            <div className="rounded-lg border overflow-hidden">
+              <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-muted/60 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="col-span-3">Product</span>
+                <span className="col-span-2">Batch #</span>
+                <span className="col-span-2">Purity</span>
+                <span className="col-span-2">Test Date</span>
+                <span className="col-span-2">Lab</span>
+                <span className="col-span-1 text-right">COA</span>
               </div>
-            </Card>
-          ))}
-        </div>
-        )}
+              {certificates.map((cert, i) => (
+                <div key={cert.id} className={`grid grid-cols-12 gap-2 px-5 py-3.5 items-center border-b last:border-0 hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
+                  <div className="col-span-3">
+                    <p className="font-medium text-sm leading-tight">{cert.productName}</p>
+                  </div>
+                  <div className="col-span-2">
+                    {cert.batchNumber
+                      ? <span className="font-mono text-xs text-muted-foreground">{cert.batchNumber}</span>
+                      : <span className="text-xs text-muted-foreground/50 italic">On request</span>}
+                  </div>
+                  <div className="col-span-2">
+                    {cert.purity
+                      ? <span className="text-xs font-bold text-green-600">{cert.purity}</span>
+                      : <span className="text-xs text-muted-foreground/50">—</span>}
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
+                  </div>
+                  <div className="col-span-1 flex justify-end">
+                    {cert.fileUrl ? (
+                      <button onClick={() => { setViewCert(cert); setZoomed(false); }} className="text-xs text-primary hover:underline font-medium">PDF</button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/50">—</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <p className="text-[10px] text-muted-foreground/60 text-center py-4">
+                COAs issued by Freedom Diagnostics · HPLC/MS methodology · Missing COAs available on request at support@aurapepts.bio
+              </p>
+            </div>
+          ) : (
+            /* Grid view */
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {certificates.map((cert) => (
+                <Card
+                  key={cert.id}
+                  className="overflow-visible hover-elevate cursor-pointer"
+                  data-testid={`card-coa-public-${cert.id}`}
+                >
+                  <button
+                    className="block w-full"
+                    onClick={() => { setViewCert(cert); setZoomed(false); }}
+                  >
+                    {cert.fileType === "image" ? (
+                      <div className="aspect-[3/4] overflow-hidden rounded-t-md">
+                        <img src={cert.fileUrl} alt={cert.title} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <PdfThumbnail thumbnailUrl={cert.thumbnailUrl} />
+                    )}
+                  </button>
+                  <div className="p-3 space-y-1">
+                    <p className="text-xs font-semibold truncate leading-tight" data-testid={`text-coa-title-${cert.id}`}>
+                      {cert.productName}
+                    </p>
+                    {cert.batchNumber && (
+                      <p className="text-[10px] text-muted-foreground font-mono">Batch #{cert.batchNumber}</p>
+                    )}
+                    {cert.purity && (
+                      <p className="text-[10px] font-bold text-green-600">Purity: {cert.purity}</p>
+                    )}
+                    {cert.testDate && (
+                      <p className="text-[10px] text-muted-foreground/70">Tested: {cert.testDate}</p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
+      {/* Lightbox */}
       {viewCert && (
         <div
           className="fixed inset-0 z-[70] bg-black/85 flex flex-col"
@@ -266,77 +214,45 @@ export default function CertificatesPage() {
                   variant="ghost"
                   className="text-white/80 hover:text-white"
                   onClick={(e) => { e.stopPropagation(); setZoomed(!zoomed); }}
-                  data-testid="button-zoom-toggle"
                 >
-                  {zoomed ? <ZoomOut className="h-5 w-5" /> : <ZoomIn className="h-5 w-5" />}
+                  {zoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
                 </Button>
               )}
-              <a
-                href={viewCert.fileUrl}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-white/80 hover:text-white"
-                  data-testid="button-download-coa"
-                >
-                  <Download className="h-5 w-5" />
+              {viewCert.fileUrl && (
+                <Button size="icon" variant="ghost" className="text-white/80 hover:text-white" asChild>
+                  <a href={viewCert.fileUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
+                    <Download className="h-4 w-4" />
+                  </a>
                 </Button>
-              </a>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="text-white/80 hover:text-white"
-                onClick={closeLightbox}
-                data-testid="button-close-lightbox"
-              >
-                <X className="h-5 w-5" />
+              )}
+              <Button size="icon" variant="ghost" className="text-white/80 hover:text-white" onClick={closeLightbox}>
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <div
-            className="flex-1 overflow-auto flex items-start sm:items-center justify-center px-4 pb-4"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="flex-1 flex items-center justify-center overflow-hidden px-4 pb-4" onClick={(e) => e.stopPropagation()}>
             {showIframe ? (
               <iframe
-                src={viewCert.fileUrl}
-                title={viewCert.title}
-                className="w-full h-[calc(100vh-5rem)] max-w-4xl rounded-md bg-white"
-                data-testid="iframe-coa-preview"
+                src={viewCert.fileUrl!}
+                className="w-full h-full max-w-4xl rounded"
+                title={viewCert.productName}
               />
             ) : previewSrc ? (
               <img
                 src={previewSrc}
-                alt={viewCert.title}
-                className={`rounded-md bg-white transition-transform duration-200 ${
-                  zoomed
-                    ? "max-w-none w-[150vw] sm:w-[120vw] cursor-zoom-out"
-                    : "max-w-full max-h-[calc(100vh-5rem)] w-auto h-auto object-contain cursor-zoom-in"
-                }`}
-                onClick={() => setZoomed(!zoomed)}
-                data-testid="img-coa-preview"
+                alt={viewCert.productName}
+                className={`rounded shadow-2xl transition-all duration-200 ${zoomed ? 'max-h-none max-w-none w-auto' : 'max-h-full max-w-full object-contain'}`}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center py-20">
-                <FileText className="h-16 w-16 text-white/40 mb-4" />
-                <p className="text-white/60 text-sm mb-4">Preview not available</p>
-                <a
-                  href={viewCert.fileUrl}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="outline" className="bg-white/10 backdrop-blur text-white border-white/20">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download File
-                  </Button>
-                </a>
+              <div className="text-white/60 text-sm text-center">
+                <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                <p>Preview not available.</p>
+                {viewCert.fileUrl && (
+                  <a href={viewCert.fileUrl} target="_blank" rel="noopener noreferrer" className="text-white underline mt-2 inline-block">
+                    Open PDF
+                  </a>
+                )}
               </div>
             )}
           </div>
