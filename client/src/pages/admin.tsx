@@ -334,7 +334,7 @@ function ProductForm({
     slug: product?.slug ?? "",
     subtitle: product?.subtitle ?? "",
     description: product?.description ?? "",
-    price: product?.price?.toString() ?? "",
+    price: product?.price ? (product.price / 100).toFixed(2) : "",
     contents: product?.contents ?? "",
     imageUrl: product?.imageUrl ?? "",
     category: product?.category ?? "peptide",
@@ -350,7 +350,7 @@ function ProductForm({
         slug: form.slug || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         subtitle: form.subtitle,
         description: form.description,
-        price: parseInt(form.price),
+        price: Math.round(parseFloat(form.price) * 100),
         contents: form.contents,
         imageUrl: form.imageUrl,
         category: form.category,
@@ -443,7 +443,9 @@ function ProductForm({
             type="number"
             value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
-            min="1"
+            min="0.01"
+            step="0.01"
+            placeholder="0.00"
             required
             data-testid="input-product-price"
           />
@@ -3973,7 +3975,7 @@ export default function AdminPage() {
                         {!product.inStock && <Badge variant="destructive" className="text-[10px]">Out of Stock</Badge>}
                       </div>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {product.contents} &middot; ${product.price}
+                        {product.contents} &middot; ${(product.price / 100).toFixed(2)}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">

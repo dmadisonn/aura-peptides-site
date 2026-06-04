@@ -208,7 +208,25 @@ app.get("/api/coas", async (req, res) => {
 });
 
 app.get("/api/certificates", async (req, res) => {
-  try { res.json(await q("SELECT * FROM certificates ORDER BY created_at DESC")); }
+  try {
+    const rows = await q("SELECT * FROM certificates ORDER BY created_at DESC");
+    const mapped = rows.map(r => ({
+      id: r.id,
+      productId: r.product_id || null,
+      productName: r.product_name || "",
+      batchNumber: r.batch_number || "",
+      purity: r.purity || null,
+      testedBy: r.tested_by || null,
+      testDate: r.test_date || null,
+      fileUrl: r.file_url || null,
+      fileType: r.file_type || null,
+      title: r.title || null,
+      thumbnailUrl: r.thumbnail_url || null,
+      notes: r.notes || null,
+      createdAt: r.created_at || null,
+    }));
+    res.json(mapped);
+  }
   catch (e) { res.json([]); }
 });
 
