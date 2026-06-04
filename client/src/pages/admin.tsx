@@ -1310,10 +1310,12 @@ function CertificatesPanel() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title || file.name.replace(/\.[^/.]+$/, ""));
+      const adminToken = getAdminToken();
       const res = await fetch("/api/admin/certificates", {
         method: "POST",
         body: formData,
         credentials: "include",
+        headers: adminToken ? { "x-admin-token": adminToken } : {},
       });
       if (!res.ok) {
         const data = await res.json();

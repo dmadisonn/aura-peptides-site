@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const session = require("express-session");
 const { Pool } = require("pg");
 const crypto = require("crypto");
@@ -203,6 +205,54 @@ app.get("/api/settings/affiliate-banner", async (req, res) => {
 app.get("/api/coas", async (req, res) => {
   try { res.json(await q("SELECT * FROM certificates ORDER BY created_at DESC")); }
   catch (e) { res.json([]); }
+});
+
+app.get("/api/certificates", async (req, res) => {
+  try { res.json(await q("SELECT * FROM certificates ORDER BY created_at DESC")); }
+  catch (e) { res.json([]); }
+});
+
+app.post("/api/admin/certificates", upload.single("file"), async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file provided" });
+    const { title } = req.body;
+    const base64 = req.file.buffer.toString("base64");
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+    const id = crypto.randomUUID();
+    const name = title || req.file.originalname.replace(/\.[^/.]+$/, "");
+    await q(
+      `INSERT INTO certificates (id, product_name, batch_number, title, file_url, file_type, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+      [id, name, "N/A", name, dataUrl, req.file.mimetype]
+    );
+    const [cert] = await q("SELECT * FROM certificates WHERE id = $1", [id]);
+    res.json(cert);
+  } catch (e) {
+    console.error("Certificate upload error:", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/admin/certificates/:id", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    await q("DELETE FROM certificates WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.patch("/api/admin/certificates/:id", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const { title } = req.body;
+    await q("UPDATE certificates SET title = $1, product_name = $1 WHERE id = $2", [title, req.params.id]);
+    const [cert] = await q("SELECT * FROM certificates WHERE id = $1", [req.params.id]);
+    res.json(cert);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 
