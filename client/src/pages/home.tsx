@@ -2,8 +2,6 @@ import { Link } from "wouter";
 import { ArrowRight, FlaskConical, Shield, Sparkles, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
-import { StoreHeader } from "@/components/store-header";
-import { StoreFooter } from "@/components/store-footer";
 import { AuraLogo } from "@/components/aura-logo";
 import { getFeaturedProducts, getAllProducts } from "@/lib/products";
 
@@ -20,7 +18,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <StoreHeader />
 
       {/* Hero */}
       <section className="relative py-24 px-4 bg-gradient-to-br from-background to-muted overflow-hidden">
@@ -76,7 +73,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <StoreFooter />
     </div>
   );
 }
