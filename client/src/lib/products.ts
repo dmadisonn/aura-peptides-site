@@ -1050,3 +1050,7 @@ export function getProductBySlug(slug: string): Product | undefined {
 export function getProductsByCategory(category: string): Product[] {
   return products.filter(p => p.category === category);
 }
+// Alias for compatibility
+export function getProduct(slug: string): Product | undefined {
+  return getProductBySlug(slug);
+}
