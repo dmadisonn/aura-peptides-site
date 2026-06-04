@@ -55,6 +55,131 @@ async function sendEmail({ to, subject, html }) {
   } catch (e) { console.error("Email send error:", e); return false; }
 }
 
+function buildAuraAdminInvoiceEmail({ product, amount, qty, priceEach, total, name, email, org, notes }) {
+  const notesRow = notes
+    ? `<tr><td style="padding:6px 0;font-size:13px;color:#888;width:120px;">Notes</td><td style="padding:6px 0;font-size:13px;color:#333;">${notes}</td></tr>`
+    : "";
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#f4f3f0;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3f0;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <tr><td style="background:#0d0d0d;padding:32px 40px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:#a78bfa;">Aura Peptides</p>
+        <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">New Invoice Request</h1>
+        <p style="margin:8px 0 0;font-size:12px;color:#666;">Review and reply with a formal invoice</p>
+      </td></tr>
+      <tr><td style="padding:32px 40px 0;">
+        <p style="margin:0 0 16px;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#a78bfa;font-weight:600;">Order Summary</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden;">
+          <tr style="background:#f9f8ff;">
+            <td style="padding:12px 16px;font-size:13px;font-weight:600;color:#333;border-bottom:1px solid #eee;">Product</td>
+            <td style="padding:12px 16px;font-size:13px;font-weight:600;color:#333;border-bottom:1px solid #eee;text-align:right;">Qty</td>
+          </tr>
+          <tr>
+            <td style="padding:14px 16px;font-size:14px;color:#222;font-weight:500;">${product} &middot; ${amount || ""}</td>
+            <td style="padding:14px 16px;font-size:14px;color:#222;text-align:right;">${qty}</td>
+          </tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:20px 40px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="padding:6px 0;font-size:13px;color:#666;">Price per unit</td><td style="padding:6px 0;font-size:13px;color:#333;text-align:right;">$${parseFloat(priceEach||0).toFixed(2)}</td></tr>
+          <tr><td style="padding:6px 0;font-size:13px;color:#666;">Quantity</td><td style="padding:6px 0;font-size:13px;color:#333;text-align:right;">${qty}</td></tr>
+          <tr><td colspan="2" style="padding:8px 0;"><hr style="border:none;border-top:1px solid #eee;margin:0;"/></td></tr>
+          <tr><td style="padding:8px 0;font-size:16px;font-weight:700;color:#333;">Total Due</td><td style="padding:8px 0;font-size:20px;font-weight:700;color:#7c3aed;text-align:right;">$${parseFloat(total||0).toFixed(2)}</td></tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:24px 40px 0;"><hr style="border:none;border-top:2px solid #f0f0f0;"/></td></tr>
+      <tr><td style="padding:24px 40px 0;">
+        <p style="margin:0 0 16px;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#a78bfa;font-weight:600;">Customer Details</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="padding:6px 0;font-size:13px;color:#888;width:120px;">Name</td><td style="padding:6px 0;font-size:13px;color:#333;font-weight:500;">${name}</td></tr>
+          <tr><td style="padding:6px 0;font-size:13px;color:#888;">Email</td><td style="padding:6px 0;font-size:13px;"><a href="mailto:${email}" style="color:#7c3aed;text-decoration:none;">${email}</a></td></tr>
+          <tr><td style="padding:6px 0;font-size:13px;color:#888;">Organization</td><td style="padding:6px 0;font-size:13px;color:#333;">${org || "—"}</td></tr>
+          ${notesRow}
+        </table>
+      </td></tr>
+      <tr><td style="padding:24px 40px;">
+        <div style="background:#f9f8ff;border:1px solid #e8e0ff;border-radius:8px;padding:16px 20px;">
+          <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">Reply directly to <a href="mailto:${email}" style="color:#7c3aed;font-weight:600;">${email}</a> to send their formal invoice.</p>
+        </div>
+      </td></tr>
+      <tr><td style="background:#f9f8ff;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#aaa;">Aura Health LLC &middot; DBA Aura Peptides</p>
+        <p style="margin:4px 0 0;font-size:11px;color:#bbb;">6586 W Atlantic Ave, Ste 1112, Delray Beach, FL 33446 &middot; (629) 332-5351</p>
+        <p style="margin:4px 0 0;font-size:10px;color:#ccc;">For laboratory research use only. Not for human or animal consumption.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+function buildAuraCustomerInvoiceEmail({ product, amount, qty, priceEach, total, name, email }) {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#f4f3f0;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3f0;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <tr><td style="background:#0d0d0d;padding:32px 40px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:#a78bfa;">Aura Peptides</p>
+        <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Invoice Request Received</h1>
+        <p style="margin:8px 0 0;font-size:12px;color:#777;">We'll be in touch within 24 hours</p>
+      </td></tr>
+      <tr><td style="padding:32px 40px 0;">
+        <p style="margin:0;font-size:15px;color:#333;line-height:1.7;">Hi <strong>${name}</strong>,</p>
+        <p style="margin:12px 0 0;font-size:14px;color:#555;line-height:1.7;">We've received your invoice request. A formal invoice will be sent to this address within <strong>24 hours</strong>.</p>
+      </td></tr>
+      <tr><td style="padding:24px 40px 0;">
+        <div style="border:1px solid #e8e0ff;border-radius:10px;overflow:hidden;">
+          <div style="background:#f9f8ff;padding:14px 20px;border-bottom:1px solid #e8e0ff;">
+            <p style="margin:0;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#a78bfa;font-weight:600;">Order Summary</p>
+          </div>
+          <div style="padding:20px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td style="padding:5px 0;font-size:13px;color:#888;width:140px;">Product</td><td style="padding:5px 0;font-size:13px;color:#333;font-weight:600;">${product} &middot; ${amount || ""}</td></tr>
+              <tr><td style="padding:5px 0;font-size:13px;color:#888;">Quantity</td><td style="padding:5px 0;font-size:13px;color:#333;">${qty}</td></tr>
+              <tr><td style="padding:5px 0;font-size:13px;color:#888;">Price Each</td><td style="padding:5px 0;font-size:13px;color:#333;">$${parseFloat(priceEach||0).toFixed(2)}</td></tr>
+              <tr><td colspan="2" style="padding:10px 0 6px;"><hr style="border:none;border-top:1px solid #eee;margin:0;"/></td></tr>
+              <tr><td style="padding:6px 0;font-size:14px;font-weight:700;color:#333;">Total</td><td style="padding:6px 0;font-size:18px;font-weight:700;color:#7c3aed;">$${parseFloat(total||0).toFixed(2)}</td></tr>
+            </table>
+          </div>
+        </div>
+      </td></tr>
+      <tr><td style="padding:24px 40px 0;">
+        <p style="margin:0 0 12px;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#a78bfa;font-weight:600;">What Happens Next</p>
+        <table cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="width:28px;vertical-align:top;padding-top:2px;"><div style="width:20px;height:20px;border-radius:50%;background:#7c3aed;text-align:center;line-height:20px;font-size:11px;font-weight:700;color:#fff;">1</div></td>
+            <td style="padding:0 0 12px 10px;font-size:13px;color:#555;line-height:1.5;">We review your request and prepare a formal invoice.</td>
+          </tr>
+          <tr>
+            <td style="width:28px;vertical-align:top;padding-top:2px;"><div style="width:20px;height:20px;border-radius:50%;background:#7c3aed;text-align:center;line-height:20px;font-size:11px;font-weight:700;color:#fff;">2</div></td>
+            <td style="padding:0 0 12px 10px;font-size:13px;color:#555;line-height:1.5;">Invoice sent to <strong>${email}</strong> within 24 hours.</td>
+          </tr>
+          <tr>
+            <td style="width:28px;vertical-align:top;padding-top:2px;"><div style="width:20px;height:20px;border-radius:50%;background:#7c3aed;text-align:center;line-height:20px;font-size:11px;font-weight:700;color:#fff;">3</div></td>
+            <td style="padding:0 0 0 10px;font-size:13px;color:#555;line-height:1.5;">Order ships after payment confirmation.</td>
+          </tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:20px 40px 32px;">
+        <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">Questions? Reply to this email or reach us at <a href="mailto:support@aurapepts.bio" style="color:#7c3aed;">support@aurapepts.bio</a> or <a href="tel:+16293325351" style="color:#7c3aed;">(629) 332-5351</a>.</p>
+      </td></tr>
+      <tr><td style="background:#f9f8ff;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#aaa;">Aura Health LLC &middot; DBA Aura Peptides</p>
+        <p style="margin:4px 0 0;font-size:11px;color:#bbb;">6586 W Atlantic Ave, Ste 1112, Delray Beach, FL 33446</p>
+        <p style="margin:8px 0 0;font-size:10px;color:#ccc;text-transform:uppercase;letter-spacing:0.1em;">For laboratory research use only. Not for human or animal consumption.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
 // ── Contact Form ──────────────────────────────────────────────────────────────
 app.post("/api/contact", async (req, res) => {
   try {
@@ -116,31 +241,11 @@ app.post("/api/invoice-request", async (req, res) => {
       );
     } catch (dbErr) { console.warn("DB insert skipped:", dbErr.message); }
 
-    const adminHtml = "<div style='font-family:sans-serif;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;'>" +
-      "<p style='color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;'>Aura Peptides</p>" +
-      "<h2 style='margin:0 0 24px;font-size:20px;color:#fff;'>New Invoice Request</h2>" +
-      "<p><strong>Product:</strong> " + product + " " + (amount || "") + "</p>" +
-      "<p><strong>Qty:</strong> " + qty + " &nbsp; <strong>Price Each:</strong> $" + parseFloat(priceEach || 0).toFixed(2) + "</p>" +
-      "<p><strong>Total:</strong> <span style='color:#a78bfa;font-size:18px;'>$" + parseFloat(total || 0).toFixed(2) + "</span></p>" +
-      "<hr style='border-color:#333;'/>" +
-      "<p><strong>Name:</strong> " + name + "</p>" +
-      "<p><strong>Email:</strong> " + email + "</p>" +
-      "<p><strong>Org:</strong> " + (org || "—") + "</p>" +
-      (notes ? "<p><strong>Notes:</strong> " + notes + "</p>" : "") +
-      "<p style='color:#888;font-size:11px;margin-top:24px;'>Reply directly to " + email + " to send their invoice.</p>" +
-      "</div>";
+    const adminHtml = buildAuraAdminInvoiceEmail({ product, amount, qty, priceEach, total, name, email, org, notes });
+    const customerHtml = buildAuraCustomerInvoiceEmail({ product, amount, qty, priceEach, total, name, email });
 
-    const customerHtml = "<div style='font-family:sans-serif;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;'>" +
-      "<p style='color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;'>Aura Peptides</p>" +
-      "<h2 style='margin:0 0 24px;font-size:20px;color:#fff;'>Invoice Request Received</h2>" +
-      "<p style='color:#ccc;'>Hi " + name + ",</p>" +
-      "<p style='color:#ccc;'>We received your request for <strong style='color:#fff;'>" + product + " " + (amount || "") + " (qty: " + qty + ")</strong>.</p>" +
-      "<p style='color:#ccc;'>A formal invoice for <strong style='color:#a78bfa;'>$" + parseFloat(total || 0).toFixed(2) + "</strong> will be sent to this email within 24 hours.</p>" +
-      "<p style='color:#555;font-size:10px;margin-top:24px;text-transform:uppercase;letter-spacing:0.1em;'>All products are for laboratory research use only. Not for human or animal consumption.</p>" +
-      "</div>";
-
-    await sendEmail({ to: ADMIN_EMAIL, subject: "New Invoice Request — " + product, html: adminHtml });
-    await sendEmail({ to: email, subject: "Invoice Request Received — " + product, html: customerHtml });
+    await sendEmail({ to: ADMIN_EMAIL, subject: `📋 New Invoice Request — ${product} (${amount || ""})`, html: adminHtml });
+    await sendEmail({ to: email, subject: `Invoice Request Received — Aura Peptides`, html: customerHtml });
 
     res.json({ success: true, message: "Invoice request submitted. You will receive a confirmation email shortly." });
   } catch (err) {
