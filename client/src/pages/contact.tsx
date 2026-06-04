@@ -19,7 +19,7 @@ export default function ContactPage() {
               <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">Business Information</p>
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="font-semibold text-foreground">Darci Madison LLC</p>
+                  <p className="font-semibold text-foreground">Aura Health LLC</p>
                   <p className="text-muted-foreground">DBA Aura Peptides</p>
                 </div>
                 <div className="flex items-start gap-3">
