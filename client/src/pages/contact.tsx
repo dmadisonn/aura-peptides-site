@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, MapPin, Clock } from "lucide-react";
+import { Mail, MapPin, Clock, Phone } from "lucide-react";
 
 export default function ContactPage() {
   return (
@@ -21,6 +21,21 @@ export default function ContactPage() {
                 <div>
                   <p className="font-semibold text-foreground">Darci Madison LLC</p>
                   <p className="text-muted-foreground">DBA Aura Peptides</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">Address</p>
+                    <p className="text-muted-foreground">6586 W Atlantic Ave, Ste 1112</p>
+                    <p className="text-muted-foreground">Delray Beach, FL 33446</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Phone className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">Phone</p>
+                    <a href="tel:+16293325351" className="text-muted-foreground hover:text-primary transition-colors">(629) 332-5351</a>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Mail className="h-4 w-4 mt-0.5 text-primary shrink-0" />

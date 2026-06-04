@@ -93,7 +93,8 @@ export function StoreFooter() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-8 border-t border-border/60">
           <div className="text-xs text-muted-foreground text-center sm:text-left space-y-1">
             <p data-testid="text-copyright">&copy; {new Date().getFullYear()} Aura Peptides. All rights reserved.</p>
-            <p>Darci Madison LLC &bull; support@aurapepts.bio</p>
+            <p>Darci Madison LLC DBA Aura Peptides &bull; 6586 W Atlantic Ave, Ste 1112, Delray Beach, FL 33446</p>
+            <p>support@aurapepts.bio &bull; (629) 332-5351</p>
           </div>
           <p className="text-[11px] text-muted-foreground/80 leading-relaxed text-center sm:text-right sm:whitespace-nowrap max-w-xs sm:max-w-none">
             All products are sold strictly for laboratory research use only. Not for human or veterinary use.
