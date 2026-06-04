@@ -24,6 +24,7 @@ export default function CertificatesPage() {
   });
   const [viewCert, setViewCert] = useState<Certificate | null>(null);
   const [zoomed, setZoomed] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid'|'table'>('grid');
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -73,6 +74,62 @@ export default function CertificatesPage() {
       </div>
 
       {isLoading ? (
+        {/* View toggle */}
+        <div className="flex justify-end mb-4">
+          <div className="flex rounded-md border overflow-hidden text-xs">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+            >Grid</button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+            >Table</button>
+          </div>
+        </div>
+
+        {viewMode === 'table' ? (
+          <div className="rounded-lg border overflow-hidden">
+            <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-muted/60 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="col-span-3">Product</span>
+              <span className="col-span-2">Batch #</span>
+              <span className="col-span-2">Purity</span>
+              <span className="col-span-2">Test Date</span>
+              <span className="col-span-2">Lab</span>
+              <span className="col-span-1 text-right">COA</span>
+            </div>
+            {certificates.map((cert, i) => (
+              <div key={cert.id} className={`grid grid-cols-12 gap-2 px-5 py-3.5 items-center border-b last:border-0 text-sm hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
+                <div className="col-span-3">
+                  <p className="font-medium text-sm leading-tight">{cert.productName}</p>
+                </div>
+                <div className="col-span-2">
+                  {cert.batchNumber
+                    ? <span className="font-mono text-xs text-muted-foreground">{cert.batchNumber}</span>
+                    : <span className="text-xs text-muted-foreground/50 italic">On request</span>}
+                </div>
+                <div className="col-span-2">
+                  {cert.purity
+                    ? <span className="text-xs font-bold text-green-600">{cert.purity}</span>
+                    : <span className="text-xs text-muted-foreground/50">—</span>}
+                </div>
+                <div className="col-span-2">
+                  <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  {cert.fileUrl ? (
+                    <button onClick={() => { setViewCert(cert); setZoomed(false); }} className="text-xs text-primary hover:underline font-medium">PDF</button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/50">—</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="aspect-[3/4] rounded-md" />
@@ -88,6 +145,62 @@ export default function CertificatesPage() {
           </p>
         </div>
       ) : (
+        {/* View toggle */}
+        <div className="flex justify-end mb-4">
+          <div className="flex rounded-md border overflow-hidden text-xs">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+            >Grid</button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+            >Table</button>
+          </div>
+        </div>
+
+        {viewMode === 'table' ? (
+          <div className="rounded-lg border overflow-hidden">
+            <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-muted/60 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="col-span-3">Product</span>
+              <span className="col-span-2">Batch #</span>
+              <span className="col-span-2">Purity</span>
+              <span className="col-span-2">Test Date</span>
+              <span className="col-span-2">Lab</span>
+              <span className="col-span-1 text-right">COA</span>
+            </div>
+            {certificates.map((cert, i) => (
+              <div key={cert.id} className={`grid grid-cols-12 gap-2 px-5 py-3.5 items-center border-b last:border-0 text-sm hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}>
+                <div className="col-span-3">
+                  <p className="font-medium text-sm leading-tight">{cert.productName}</p>
+                </div>
+                <div className="col-span-2">
+                  {cert.batchNumber
+                    ? <span className="font-mono text-xs text-muted-foreground">{cert.batchNumber}</span>
+                    : <span className="text-xs text-muted-foreground/50 italic">On request</span>}
+                </div>
+                <div className="col-span-2">
+                  {cert.purity
+                    ? <span className="text-xs font-bold text-green-600">{cert.purity}</span>
+                    : <span className="text-xs text-muted-foreground/50">—</span>}
+                </div>
+                <div className="col-span-2">
+                  <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  {cert.fileUrl ? (
+                    <button onClick={() => { setViewCert(cert); setZoomed(false); }} className="text-xs text-primary hover:underline font-medium">PDF</button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/50">—</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {certificates.map((cert) => (
             <Card
@@ -111,14 +224,24 @@ export default function CertificatesPage() {
                   <PdfThumbnail thumbnailUrl={cert.thumbnailUrl} />
                 )}
               </button>
-              <div className="p-3">
-                <p className="text-xs font-medium truncate" data-testid={`text-coa-title-${cert.id}`}>
-                  {cert.title}
+              <div className="p-3 space-y-1">
+                <p className="text-xs font-semibold truncate leading-tight" data-testid={`text-coa-title-${cert.id}`}>
+                  {cert.productName}
                 </p>
+                {cert.batchNumber && (
+                  <p className="text-[10px] text-muted-foreground font-mono">Batch #{cert.batchNumber}</p>
+                )}
+                {cert.purity && (
+                  <p className="text-[10px] font-bold text-green-600">Purity: {cert.purity}</p>
+                )}
+                {cert.testDate && (
+                  <p className="text-[10px] text-muted-foreground/70">Tested: {cert.testDate}</p>
+                )}
               </div>
             </Card>
           ))}
         </div>
+        )}
       )}
 
       {viewCert && (
@@ -128,9 +251,14 @@ export default function CertificatesPage() {
           data-testid="coa-lightbox"
         >
           <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
-            <p className="text-white text-sm font-medium truncate mr-4 max-w-[60%]">
-              {viewCert.title}
-            </p>
+            <div className="flex flex-col mr-4 max-w-[60%]">
+              <p className="text-white text-sm font-medium truncate">{viewCert.productName}</p>
+              <div className="flex items-center gap-3 mt-0.5">
+                {viewCert.batchNumber && <p className="text-white/50 text-[10px] font-mono">Batch #{viewCert.batchNumber}</p>}
+                {viewCert.purity && <p className="text-green-400 text-[10px] font-bold">{viewCert.purity}</p>}
+                {viewCert.testDate && <p className="text-white/50 text-[10px]">Tested {viewCert.testDate}</p>}
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               {previewSrc && (
                 <Button
