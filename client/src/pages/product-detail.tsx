@@ -53,6 +53,11 @@ export default function ProductDetailPage() {
               )}
             </div>
             <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
+            <div className="rounded-md border border-yellow-500/40 bg-yellow-500/5 px-4 py-3 text-xs text-muted-foreground space-y-0.5">
+              <p>⚠ <strong className="text-foreground">For laboratory research use only.</strong></p>
+              <p>Not for human consumption.</p>
+              <p>Not intended to diagnose, treat, cure, or prevent any disease.</p>
+            </div>
             <Button size="lg" onClick={handleAddToCart} disabled={!product.inStock}>
               <ShoppingCart className="mr-2 h-5 w-5" />
               {product.inStock ? "Add to Cart" : "Out of Stock"}
