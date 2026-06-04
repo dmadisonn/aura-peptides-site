@@ -134,7 +134,7 @@ export default function CertificatesPage() {
                     <span className="text-xs text-muted-foreground">{cert.testDate || '—'}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-xs text-muted-foreground">{cert.testedBy || 'Freedom Diagnostics'}</span>
+                    <span className="text-xs text-muted-foreground">{cert.testedBy || 'Independent Lab'}</span>
                   </div>
                   <div className="col-span-1 flex justify-end">
                     {cert.fileUrl ? (
@@ -146,7 +146,7 @@ export default function CertificatesPage() {
                 </div>
               ))}
               <p className="text-[10px] text-muted-foreground/60 text-center py-4">
-                COAs issued by Freedom Diagnostics · HPLC/MS methodology · Missing COAs available on request at support@aurapepts.bio
+                All COAs are independently verified · HPLC/MS methodology · Missing COAs available on request at support@aurapepts.bio
               </p>
             </div>
           ) : (
