@@ -36,7 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, clearAdminToken, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useFeatureFlags, type FeatureFlags } from "@/hooks/use-feature-flags";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -3733,6 +3733,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await apiRequest("POST", "/api/admin/logout");
+    clearAdminToken();
     queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
     navigate("/");
   };

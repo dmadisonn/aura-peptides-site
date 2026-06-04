@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
+import { apiRequest, getQueryFn, queryClient, setAdminToken } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AuraLogo } from "@/components/aura-logo";
 
@@ -31,7 +31,10 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiRequest("POST", "/api/admin/login", { username, password });
+      const res = await apiRequest("POST", "/api/admin/login", { username, password });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid credentials");
+      if (data.token) setAdminToken(data.token);
       await queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
       navigate("/admin");
     } catch (error: any) {

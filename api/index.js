@@ -100,27 +100,34 @@ app.post("/api/invoice-request", async (req, res) => {
   }
 });
 
-// ── Admin Auth ─────────────────────────────────────────────────────────────────
+// ── Admin Auth (token-based for stateless Vercel) ─────────────────────────────
+const ADMIN_TOKEN = "aura-admin-token-2024-darci";
+
 app.post("/api/admin/login", async (req, res) => {
   const { username, password } = req.body;
   const ADMIN_USER = process.env.ADMIN_USERNAME || "darcimadison";
   const ADMIN_PASS = process.env.ADMIN_PASSWORD || "darci22";
   if (username === ADMIN_USER && password === ADMIN_PASS) {
-    req.session.adminAuthenticated = true;
-    res.json({ success: true });
+    res.json({ success: true, token: ADMIN_TOKEN });
   } else {
     res.status(401).json({ error: "Invalid credentials" });
   }
 });
 
 app.post("/api/admin/logout", (req, res) => {
-  req.session.destroy();
   res.json({ success: true });
 });
 
 app.get("/api/admin/check", (req, res) => {
-  res.json({ authenticated: !!req.session.adminAuthenticated });
+  const token = req.headers["x-admin-token"] || req.query.token;
+  res.json({ authenticated: token === ADMIN_TOKEN });
 });
+
+function requireAdmin(req, res, next) {
+  const token = req.headers["x-admin-token"] || req.query.token;
+  if (token !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  next();
+}
 
 // ── Products ───────────────────────────────────────────────────────────────────
 app.get("/api/products", async (req, res) => {
@@ -140,13 +147,13 @@ app.get("/api/products/:slug", async (req, res) => {
 
 // ── Admin Products ─────────────────────────────────────────────────────────────
 app.get("/api/admin/products", async (req, res) => {
-  if (!req.session.adminAuthenticated) return res.status(401).json({ error: "Unauthorized" });
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try { res.json(await q("SELECT * FROM products ORDER BY created_at DESC")); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.patch("/api/admin/products/:id", async (req, res) => {
-  if (!req.session.adminAuthenticated) return res.status(401).json({ error: "Unauthorized" });
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try {
     const fields = Object.keys(req.body);
     const vals = [...Object.values(req.body), req.params.id];
@@ -157,20 +164,20 @@ app.patch("/api/admin/products/:id", async (req, res) => {
 });
 
 app.delete("/api/admin/products/:id", async (req, res) => {
-  if (!req.session.adminAuthenticated) return res.status(401).json({ error: "Unauthorized" });
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try { await q("DELETE FROM products WHERE id=$1", [req.params.id]); res.json({ success: true }); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Admin Orders ───────────────────────────────────────────────────────────────
 app.get("/api/admin/orders", async (req, res) => {
-  if (!req.session.adminAuthenticated) return res.status(401).json({ error: "Unauthorized" });
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try { res.json(await q("SELECT * FROM orders ORDER BY created_at DESC")); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.patch("/api/admin/orders/:id/status", async (req, res) => {
-  if (!req.session.adminAuthenticated) return res.status(401).json({ error: "Unauthorized" });
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try {
     const [o] = await q("UPDATE orders SET status=$1, updated_at=NOW() WHERE id=$2 RETURNING *", [req.body.status, req.params.id]);
     res.json(o);
@@ -201,7 +208,8 @@ app.get("/api/coas", async (req, res) => {
 
 // ── Admin Session (for login page check) ──────────────────────────────────────
 app.get("/api/admin/session", (req, res) => {
-  if (req.session.adminAuthenticated) {
+  const token = req.headers["x-admin-token"] || req.query.token;
+  if (token === ADMIN_TOKEN) {
     res.json({ user: { username: process.env.ADMIN_USERNAME || "darcimadison" } });
   } else {
     res.status(401).json({ user: null });
