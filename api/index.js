@@ -10,6 +10,136 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// ── Email (Resend) ─────────────────────────────────────────────────────────────
+async function sendEmail({ to, subject, html }) {
+  const RESEND_KEY = process.env.RESEND_API_KEY;
+  if (!RESEND_KEY) { console.warn("RESEND_API_KEY not set"); return false; }
+  try {
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "Aura Peptides <noreply@aurapepts.bio>",
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) { console.error("Resend error:", data); return false; }
+    return true;
+  } catch (e) { console.error("Email send error:", e); return false; }
+}
+
+// ── Invoice Request Email ──────────────────────────────────────────────────────
+app.post("/api/invoice-request", async (req, res) => {
+  try {
+    const { name, email, org, notes, product, amount, qty, priceEach, total } = req.body;
+    const ADMIN_EMAIL = "darcimadisonllc@icloud.com";
+
+    // Store in orders table as invoice-type order
+    try {
+      await q(
+        `INSERT INTO orders (id,order_number,customer_email,customer_name,items,subtotal,shipping_cost,tax,total,status,payment_method,created_at,updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,0,0,$6,'pending','invoice',NOW(),NOW())`,
+        [
+          crypto.randomUUID(),
+          `INV-${Date.now()}`,
+          email, name,
+          JSON.stringify([{ name: product, amount, qty, price: priceEach }]),
+          parseFloat(total)
+        ]
+      );
+    } catch (dbErr) { console.warn("DB insert skipped:", dbErr.message); }
+
+    // Admin notification
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `New Invoice Request — ${product} (${amount})`,
+      html: \`
+        <div style="font-family:monospace;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;">
+          <div style="border-bottom:1px solid #a78bfa;padding-bottom:16px;margin-bottom:24px;">
+            <p style="color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;">Aura Peptides</p>
+            <h2 style="margin:0;font-size:20px;color:#fff;">New Invoice Request</h2>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="color:#888;padding:6px 0;width:140px;">Product</td><td style="color:#fff;font-weight:bold;">\${product} · \${amount}</td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Quantity</td><td style="color:#fff;">\${qty}</td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Price Each</td><td style="color:#fff;">$\${parseFloat(priceEach).toFixed(2)}</td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Total</td><td style="color:#a78bfa;font-weight:bold;font-size:16px;">$\${parseFloat(total).toFixed(2)}</td></tr>
+            <tr><td colspan="2" style="padding:16px 0 8px;"><hr style="border:none;border-top:1px solid #2a2040;"/></td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Name</td><td style="color:#fff;">\${name}</td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Email</td><td style="color:#a78bfa;">\${email}</td></tr>
+            <tr><td style="color:#888;padding:6px 0;">Organization</td><td style="color:#fff;">\${org || '—'}</td></tr>
+            \${notes ? \`<tr><td style="color:#888;padding:6px 0;">Notes</td><td style="color:#fff;">\${notes}</td></tr>\` : ''}
+          </table>
+          <div style="margin-top:24px;background:#1a1630;border:1px solid #2a2040;padding:12px;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.1em;">
+            Reply directly to \${email} to send their invoice.
+          </div>
+        </div>
+      \`
+    });
+
+    // Customer confirmation
+    await sendEmail({
+      to: email,
+      subject: \`Invoice Request Received — \${product}\`,
+      html: \`
+        <div style="font-family:monospace;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;">
+          <div style="border-bottom:1px solid #a78bfa;padding-bottom:16px;margin-bottom:24px;">
+            <p style="color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;">Aura Peptides</p>
+            <h2 style="margin:0;font-size:20px;color:#fff;">Request Received</h2>
+          </div>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">Hi \${name},</p>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">We've received your invoice request for <strong style="color:#fff;">\${product} · \${amount} (qty: \${qty})</strong>. A formal invoice for <strong style="color:#a78bfa;">$\${parseFloat(total).toFixed(2)}</strong> will be sent to this email within 24 hours.</p>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">Payment is due upon receipt. For questions, reply directly to this email.</p>
+          <div style="margin-top:24px;background:#1a1630;border:1px solid #2a2040;padding:12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.1em;line-height:1.8;">
+            All products are for laboratory, academic, or institutional research use only. Not for human or animal consumption.
+          </div>
+        </div>
+      \`
+    });
+
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// ── Send Invoice Email (admin triggered) ──────────────────────────────────────
+app.post("/api/admin/orders/:id/send-invoice", requireAdmin, async (req, res) => {
+  try {
+    const [order] = await q("SELECT * FROM orders WHERE id=$1", [req.params.id]);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items || "[]");
+    const itemList = items.map(i => \`<tr><td style="padding:6px 0;color:#ccc;">\${i.name} \${i.amount||''}</td><td style="padding:6px 0;color:#ccc;">x\${i.qty||1}</td><td style="padding:6px 0;color:#a78bfa;">$\${parseFloat(i.price||0).toFixed(2)}</td></tr>\`).join("");
+    await sendEmail({
+      to: order.customer_email,
+      subject: \`Your Aura Peptides Invoice — \${order.order_number}\`,
+      html: \`
+        <div style="font-family:monospace;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;">
+          <div style="border-bottom:1px solid #a78bfa;padding-bottom:16px;margin-bottom:24px;">
+            <p style="color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;">Aura Peptides</p>
+            <h2 style="margin:0;font-size:20px;color:#fff;">Invoice \${order.order_number}</h2>
+          </div>
+          <p style="color:#ccc;font-size:14px;">Hi \${order.customer_name},</p>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">Please find your invoice below. Payment is due upon receipt. Reply to this email with any questions.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;margin:20px 0;">
+            <tr style="border-bottom:1px solid #2a2040;"><th style="text-align:left;padding:8px 0;color:#888;">Product</th><th style="text-align:left;padding:8px 0;color:#888;">Qty</th><th style="text-align:left;padding:8px 0;color:#888;">Price</th></tr>
+            \${itemList}
+            <tr style="border-top:1px solid #2a2040;"><td colspan="2" style="padding:12px 0;color:#888;font-weight:bold;">TOTAL DUE</td><td style="padding:12px 0;color:#a78bfa;font-weight:bold;font-size:16px;">$\${parseFloat(order.total).toFixed(2)}</td></tr>
+          </table>
+          <div style="margin-top:24px;background:#1a1630;border:1px solid #2a2040;padding:12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.1em;line-height:1.8;">
+            For research use only. Not for human or animal consumption. Aura Peptides.
+          </div>
+        </div>
+      \`
+    });
+    await q("UPDATE orders SET status='invoiced',updated_at=NOW() WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+
+
 app.use(session({
   store: new PgSessionStore({ pool, createTableIfMissing: true }),
   secret: process.env.SESSION_SECRET || "aura-secret-2026",
@@ -371,6 +501,80 @@ app.post("/api/newsletter/subscribe", async (req, res) => {
 app.get("/api/admin/email-logs", requireAdmin, async (_req, res) => {
   try { res.json(await q("SELECT * FROM email_logs ORDER BY created_at DESC LIMIT 100")); }
   catch { res.json([]); }
+});
+
+
+// ── Checkout: Invoice Request ─────────────────────────────────────────────────
+app.post("/api/checkout/invoice", async (req, res) => {
+  try {
+    const b = req.body;
+    const ADMIN_EMAIL = "darcimadisonllc@icloud.com";
+    const orderNum = `INV-${Date.now()}`;
+    const items = b.items || [];
+    const name = b.customer_name || b.customerName || "";
+    const email = b.customer_email || b.customerEmail || "";
+    const total = parseFloat(b.total || 0).toFixed(2);
+
+    // Store order
+    try {
+      await q(
+        `INSERT INTO orders (id,order_number,customer_email,customer_name,items,subtotal,shipping_cost,tax,total,status,payment_method,created_at,updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,0,0,$6,'pending','invoice',NOW(),NOW())`,
+        [crypto.randomUUID(), orderNum, email, name, JSON.stringify(items), parseFloat(total)]
+      );
+    } catch (dbErr) { console.warn("DB insert skipped:", dbErr.message); }
+
+    const itemRows = items.map(i => `<tr><td style="padding:6px 0;color:#ccc;">${i.name || i.productName || ""}</td><td style="padding:6px 0;color:#ccc;">x${i.quantity || i.qty || 1}</td><td style="padding:6px 0;color:#a78bfa;">$${parseFloat(i.price || 0).toFixed(2)}</td></tr>`).join("");
+
+    // Admin notification
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `New Invoice Request — ${orderNum}`,
+      html: `
+        <div style="font-family:monospace;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;">
+          <div style="border-bottom:1px solid #a78bfa;padding-bottom:16px;margin-bottom:24px;">
+            <p style="color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;">Aura Peptides</p>
+            <h2 style="margin:0;font-size:20px;color:#fff;">New Invoice Request · ${orderNum}</h2>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr style="border-bottom:1px solid #2a2040;"><th style="text-align:left;padding:8px 0;color:#888;">Product</th><th style="text-align:left;padding:8px 0;color:#888;">Qty</th><th style="text-align:left;padding:8px 0;color:#888;">Price</th></tr>
+            ${itemRows}
+            <tr><td colspan="2" style="padding:12px 0;color:#888;font-weight:bold;">TOTAL</td><td style="color:#a78bfa;font-size:16px;font-weight:bold;">$${total}</td></tr>
+          </table>
+          <hr style="border:none;border-top:1px solid #2a2040;margin:16px 0;"/>
+          <table style="font-size:13px;">
+            <tr><td style="color:#888;padding:4px 12px 4px 0;">Name</td><td style="color:#fff;">${name}</td></tr>
+            <tr><td style="color:#888;padding:4px 12px 4px 0;">Email</td><td style="color:#a78bfa;">${email}</td></tr>
+          </table>
+          <div style="margin-top:24px;background:#1a1630;border:1px solid #2a2040;padding:12px;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.1em;">
+            Reply to ${email} to send their invoice.
+          </div>
+        </div>
+      `
+    });
+
+    // Customer confirmation
+    await sendEmail({
+      to: email,
+      subject: `Invoice Request Received — ${orderNum}`,
+      html: `
+        <div style="font-family:monospace;background:#0e0c1a;color:#fff;padding:32px;max-width:600px;">
+          <div style="border-bottom:1px solid #a78bfa;padding-bottom:16px;margin-bottom:24px;">
+            <p style="color:#a78bfa;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;margin:0 0 4px;">Aura Peptides</p>
+            <h2 style="margin:0;font-size:20px;color:#fff;">Request Received</h2>
+          </div>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">Hi ${name},</p>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">We received your invoice request for order <strong style="color:#fff;">${orderNum}</strong> totaling <strong style="color:#a78bfa;">$${total}</strong>. A formal invoice will be sent to this email within 24 hours.</p>
+          <p style="color:#ccc;font-size:14px;line-height:1.6;">Payment is due upon receipt. Reply to this email with any questions.</p>
+          <div style="margin-top:24px;background:#1a1630;border:1px solid #2a2040;padding:12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.1em;line-height:1.8;">
+            All products are for laboratory research use only. Not for human or animal consumption.
+          </div>
+        </div>
+      `
+    });
+
+    res.json({ success: true, orderId: orderNum });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
 // ── Catch-all ─────────────────────────────────────────────────────────────────

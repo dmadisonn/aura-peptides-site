@@ -5,7 +5,6 @@ import { ProductCard } from "@/components/product-card";
 import { StoreHeader } from "@/components/store-header";
 import { StoreFooter } from "@/components/store-footer";
 import { AuraLogo } from "@/components/aura-logo";
-import { FreeShippingBanner } from "@/components/free-shipping-banner";
 import { getFeaturedProducts, getAllProducts } from "@/lib/products";
 
 const features = [
@@ -21,7 +20,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <FreeShippingBanner />
       <StoreHeader />
 
       {/* Hero */}
