@@ -1,14 +1,15 @@
 const express = require("express");
 const session = require("express-session");
-const PgSessionStore = require("connect-pg-simple")(session);
 const { Pool } = require("pg");
 const crypto = require("crypto");
 
 const app = express();
 let pool = null;
+let PgSessionStore = null;
 try {
   if (process.env.DATABASE_URL) {
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    PgSessionStore = require("connect-pg-simple")(session);
   }
 } catch(e) { console.warn("DB pool init failed:", e.message); }
 
