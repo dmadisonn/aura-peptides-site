@@ -210,7 +210,7 @@ app.get("/api/coas", async (req, res) => {
 app.get("/api/admin/session", (req, res) => {
   const token = req.headers["x-admin-token"] || req.query.token;
   if (token === ADMIN_TOKEN) {
-    res.json({ user: { username: process.env.ADMIN_USERNAME || "darcimadison" } });
+    res.json({ user: { username: process.env.ADMIN_USERNAME || "darcimadison", isSuperAdmin: true, permissions: { tabs: [], settingsSections: [] } } });
   } else {
     res.status(401).json({ user: null });
   }
