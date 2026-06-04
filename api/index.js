@@ -266,6 +266,99 @@ app.get("/api/admin/session", (req, res) => {
   }
 });
 
+
+// ── Affiliates ─────────────────────────────────────────────────────────────────
+app.get("/api/admin/affiliates", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    // Ensure table exists
+    await q(`CREATE TABLE IF NOT EXISTS affiliates (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      commission_rate INTEGER DEFAULT 10,
+      referral_discount INTEGER DEFAULT 10,
+      approved BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`);
+    const rows = await q("SELECT * FROM affiliates ORDER BY created_at DESC");
+    // Return with stats (empty for now)
+    const result = rows.map(a => ({
+      ...a,
+      commissionRate: a.commission_rate,
+      referralDiscount: a.referral_discount,
+      createdAt: a.created_at,
+      stats: { totalReferrals: 0, totalRevenue: 0, totalEarnings: 0, unpaidEarnings: 0, paidEarnings: 0 }
+    }));
+    res.json(result);
+  } catch (e) { console.error(e); res.json([]); }
+});
+
+app.post("/api/admin/affiliates", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    await q(`CREATE TABLE IF NOT EXISTS affiliates (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      commission_rate INTEGER DEFAULT 10,
+      referral_discount INTEGER DEFAULT 10,
+      approved BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`);
+    const { name, email, code, commissionRate, referralDiscount, approved } = req.body;
+    if (!name || !email || !code) return res.status(400).json({ error: "Name, email, and code are required" });
+    const id = crypto.randomUUID();
+    const [row] = await q(
+      `INSERT INTO affiliates (id, name, email, code, commission_rate, referral_discount, approved)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [id, name, email, code.toUpperCase(), commissionRate ?? 10, referralDiscount ?? 10, approved ?? true]
+    );
+    res.json({ ...row, commissionRate: row.commission_rate, referralDiscount: row.referral_discount, stats: { totalReferrals: 0, totalRevenue: 0, totalEarnings: 0, unpaidEarnings: 0, paidEarnings: 0 } });
+  } catch (e) {
+    if (e.code === '23505') return res.status(400).json({ error: "That referral code is already taken" });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put("/api/admin/affiliates/:id", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const { name, email, code, commissionRate, referralDiscount, approved } = req.body;
+    const [row] = await q(
+      `UPDATE affiliates SET name=$1, email=$2, code=$3, commission_rate=$4, referral_discount=$5, approved=$6 WHERE id=$7 RETURNING *`,
+      [name, email, code.toUpperCase(), commissionRate ?? 10, referralDiscount ?? 10, approved ?? true, req.params.id]
+    );
+    res.json({ ...row, commissionRate: row.commission_rate, referralDiscount: row.referral_discount, stats: { totalReferrals: 0, totalRevenue: 0, totalEarnings: 0, unpaidEarnings: 0, paidEarnings: 0 } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete("/api/admin/affiliates/:id", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    await q("DELETE FROM affiliates WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post("/api/admin/affiliates/:id/pay", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  res.json({ count: 0 });
+});
+
+app.post("/api/admin/affiliates/:id/unpay", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token;
+  if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  res.json({ count: 0 });
+});
+
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", db: !!pool, timestamp: new Date().toISOString() });
