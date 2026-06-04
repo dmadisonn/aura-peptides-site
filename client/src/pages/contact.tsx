@@ -1,9 +1,34 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, MapPin, Clock, Phone } from "lucide-react";
+import { Mail, MapPin, Clock, Phone, CheckCircle } from "lucide-react";
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: "", email: "", order: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed to send. Please email us directly.");
+      setSent(true);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-12 max-w-3xl">
@@ -65,15 +90,24 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div>
             <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">Send a Message</p>
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <Input placeholder="Your name" data-testid="input-contact-name" />
-              <Input type="email" placeholder="Email address" data-testid="input-contact-email" />
-              <Input placeholder="Order number (if applicable)" data-testid="input-contact-order" />
-              <Textarea placeholder="How can we help?" rows={5} data-testid="input-contact-message" />
-              <Button type="submit" className="w-full rounded-full" data-testid="button-contact-submit">
-                Send Message
+            {sent ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+                <CheckCircle className="h-10 w-10 text-primary" />
+                <p className="font-semibold text-foreground">Message sent!</p>
+                <p className="text-sm text-muted-foreground">We'll get back to you within 1–2 business days.</p>
+              </div>
+            ) : (
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <Input placeholder="Your name" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} required data-testid="input-contact-name" />
+              <Input type="email" placeholder="Email address" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} required data-testid="input-contact-email" />
+              <Input placeholder="Order number (if applicable)" value={form.order} onChange={e => setForm(f => ({...f, order: e.target.value}))} data-testid="input-contact-order" />
+              <Textarea placeholder="How can we help?" rows={5} value={form.message} onChange={e => setForm(f => ({...f, message: e.target.value}))} required data-testid="input-contact-message" />
+              {error && <p className="text-xs text-destructive">{error}</p>}
+              <Button type="submit" className="w-full rounded-full" disabled={loading} data-testid="button-contact-submit">
+                {loading ? "Sending…" : "Send Message"}
               </Button>
             </form>
+            )}
           </div>
 
         </div>

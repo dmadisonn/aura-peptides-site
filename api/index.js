@@ -55,6 +55,53 @@ async function sendEmail({ to, subject, html }) {
   } catch (e) { console.error("Email send error:", e); return false; }
 }
 
+// ── Contact Form ──────────────────────────────────────────────────────────────
+app.post("/api/contact", async (req, res) => {
+  try {
+    const { name, email, order, message } = req.body;
+    if (!name || !email || !message) return res.status(400).json({ error: "Name, email, and message are required." });
+
+    // Send notification to admin
+    await sendEmail({
+      to: "darcimadisonllc@icloud.com",
+      subject: `📬 Contact Form: ${name}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+          <h2 style="color:#1a1a1a;margin-bottom:16px;">New Contact Form Submission</h2>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <tr><td style="padding:8px;font-weight:bold;color:#555;width:130px;">Name</td><td style="padding:8px;">${name}</td></tr>
+            <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;color:#555;">Email</td><td style="padding:8px;"><a href="mailto:${email}">${email}</a></td></tr>
+            <tr><td style="padding:8px;font-weight:bold;color:#555;">Order #</td><td style="padding:8px;">${order || "N/A"}</td></tr>
+            <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:bold;color:#555;vertical-align:top;">Message</td><td style="padding:8px;white-space:pre-wrap;">${message}</td></tr>
+          </table>
+          <p style="margin-top:20px;font-size:12px;color:#999;">Sent from aurapepts.bio contact form</p>
+        </div>
+      `
+    });
+
+    // Send confirmation to customer
+    await sendEmail({
+      to: email,
+      subject: "We received your message — Aura Peptides",
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+          <h2 style="color:#1a1a1a;">Thanks for reaching out, ${name}!</h2>
+          <p style="color:#555;font-size:14px;line-height:1.6;">We've received your message and will get back to you within 1–2 business days.</p>
+          <div style="background:#f5f5f5;border-radius:8px;padding:16px;margin:20px 0;font-size:14px;color:#444;">
+            <strong>Your message:</strong><br/><br/>
+            <span style="white-space:pre-wrap;">${message}</span>
+          </div>
+          <p style="color:#555;font-size:13px;">— Aura Health LLC / Aura Peptides<br/>support@aurapepts.bio | (629) 332-5351</p>
+          <hr style="border:none;border-top:1px solid #eee;margin:20px 0;"/>
+          <p style="font-size:11px;color:#aaa;">All products are for laboratory research use only. Not for human consumption.</p>
+        </div>
+      `
+    });
+
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Invoice Request ────────────────────────────────────────────────────────────
 app.post("/api/invoice-request", async (req, res) => {
   try {
