@@ -429,14 +429,49 @@ app.get("/api/admin/products", async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Helper: convert camelCase keys to snake_case for DB writes
+function toSnakeBody(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k.replace(/([A-Z])/g, '_$1').toLowerCase(),
+      v
+    ])
+  );
+}
+
+app.post("/api/admin/products", async (req, res) => {
+  const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const b = toSnakeBody(req.body);
+    const id = require('crypto').randomUUID();
+    const slug = b.slug || (b.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const [p] = await q(
+      `INSERT INTO products (id, name, slug, subtitle, description, price, compare_at_price, category, image_url, in_stock, stock_quantity, sku, featured, published, coa_number, coa_url, purity, formula, molecular_weight, cas_number, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,NOW(),NOW()) RETURNING *`,
+      [id, b.name||'', slug, b.subtitle||'', b.description||'', parseInt(b.price)||0,
+       b.compare_at_price||null, b.category||'', b.image_url||'', b.in_stock!==false,
+       parseInt(b.stock_quantity)||100, b.sku||'', b.featured||false, b.published!==false,
+       b.coa_number||'', b.coa_url||'', b.purity||'', b.formula||'', b.molecular_weight||'', b.cas_number||'']
+    );
+    res.json(toCamel(p));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.patch("/api/admin/products/:id", async (req, res) => {
   const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   try {
-    const fields = Object.keys(req.body);
-    const vals = [...Object.values(req.body), req.params.id];
-    const sets = fields.map((f, i) => f + "=$" + (i + 1)).join(", ");
-    const [p] = await q("UPDATE products SET " + sets + ", updated_at=NOW() WHERE id=$" + vals.length + " RETURNING *", vals);
-    res.json(p);
+    // Convert camelCase from frontend to snake_case for DB
+    const snake = toSnakeBody(req.body);
+    // Only allow known safe columns
+    const allowed = ['name','slug','subtitle','description','price','compare_at_price','category',
+      'image_url','in_stock','stock_quantity','sku','featured','published',
+      'coa_number','coa_url','purity','formula','molecular_weight','cas_number'];
+    const fields = Object.keys(snake).filter(k => allowed.includes(k));
+    if (!fields.length) return res.status(400).json({ error: "No valid fields" });
+    const vals = [...fields.map(f => snake[f]), req.params.id];
+    const sets = fields.map((f, i) => `${f}=$${i + 1}`).join(", ");
+    const [p] = await q(`UPDATE products SET ${sets}, updated_at=NOW() WHERE id=$${vals.length} RETURNING *`, vals);
+    res.json(toCamel(p));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
