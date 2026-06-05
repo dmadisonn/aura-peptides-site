@@ -1,9 +1,11 @@
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product-card";
-import { getAllProducts } from "@/lib/products";
 
 export default function ProductsPage() {
-  const products = getAllProducts();
+  const { data: products = [], isLoading } = useQuery<any[]>({
+    queryKey: ["/api/products"],
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -13,11 +15,19 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold mb-2">Research Peptide Catalog</h1>
           <p className="text-muted-foreground text-sm">All compounds are strictly for in-vitro research. Not for human consumption.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product as any} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-72 bg-muted rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

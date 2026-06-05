@@ -16,6 +16,19 @@ try {
   }
 } catch(e) { console.warn("DB pool init failed:", e.message); }
 
+
+// Convert snake_case DB rows to camelCase for frontend
+function toCamel(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(toCamel);
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      v
+    ])
+  );
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -397,7 +410,7 @@ function requireAdmin(req, res, next) {
 app.get("/api/products", async (req, res) => {
   try {
     const rows = await q("SELECT * FROM products WHERE published = true ORDER BY name");
-    res.json(rows);
+    res.json(rows.map(toCamel));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -405,14 +418,14 @@ app.get("/api/products/:slug", async (req, res) => {
   try {
     const [p] = await q("SELECT * FROM products WHERE slug = $1", [req.params.slug]);
     if (!p) return res.status(404).json({ error: "Not found" });
-    res.json(p);
+    res.json(toCamel(p));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Admin Products ─────────────────────────────────────────────────────────────
 app.get("/api/admin/products", async (req, res) => {
   const _tok = req.headers["x-admin-token"] || req.query.token; if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
-  try { res.json(await q("SELECT * FROM products ORDER BY created_at DESC")); }
+  try { res.json((await q("SELECT * FROM products ORDER BY created_at DESC")).map(toCamel)); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -449,6 +462,23 @@ app.patch("/api/admin/orders/:id/status", async (req, res) => {
 });
 
 // ── Settings ───────────────────────────────────────────────────────────────────
+// ── Settings PATCH endpoints ───────────────────────────────────────────────────
+app.patch("/api/admin/settings/free-shipping-threshold", async (req, res) => {
+  const tok = req.headers["x-admin-token"] || req.query.token;
+  if (tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const { threshold } = req.body;
+    const val = parseInt(threshold) || 0;
+    const existing = await q("SELECT COUNT(*) FROM site_settings");
+    if (parseInt(existing[0].count) === 0) {
+      await q("INSERT INTO site_settings (free_shipping_threshold) VALUES ($1)", [val]);
+    } else {
+      await q("UPDATE site_settings SET free_shipping_threshold = $1", [val]);
+    }
+    res.json({ success: true, threshold: val });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get("/api/settings/free-shipping-threshold", async (req, res) => {
   try {
     const [s] = await q("SELECT free_shipping_threshold FROM site_settings LIMIT 1");

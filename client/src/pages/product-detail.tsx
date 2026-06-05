@@ -3,14 +3,16 @@ import { ShoppingCart, ArrowLeft, FlaskConical, Shield, FileText } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/stores/cart";
-import { getProduct } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProductDetailPage() {
   const params = useParams<{ slug: string }>();
   const { addItem } = useCart();
   const { toast } = useToast();
-  const product = params?.slug ? getProduct(params.slug) : undefined;
+  const { data: product, isLoading } = useQuery<any>({
+    queryKey: [`/api/products/${params?.slug}`],
+    enabled: !!params?.slug,
+  });
 
   if (!product) {
     return (

@@ -4,7 +4,7 @@ import { ArrowRight, FlaskConical, Shield, Sparkles, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import { AuraLogo } from "@/components/aura-logo";
-import { getFeaturedProducts, getAllProducts } from "@/lib/products";
+import { useQuery } from "@tanstack/react-query";
 
 const features = [
   { icon: Shield, title: "Research Grade Purity", description: "≥99% purity verified by third-party COA for all compounds." },
@@ -14,8 +14,9 @@ const features = [
 ];
 
 export default function HomePage() {
-  const featured = getFeaturedProducts();
-  const displayProducts = featured.length > 0 ? featured : getAllProducts().slice(0, 4);
+  const { data: products = [] } = useQuery<any[]>({ queryKey: ["/api/products"] });
+  const displayProducts = products.filter((p: any) => p.featured).slice(0, 4);
+  const finalProducts = displayProducts.length > 0 ? displayProducts : products.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,8 +63,8 @@ export default function HomePage() {
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold mb-8">Featured Compounds</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayProducts.map((product) => (
-              <ProductCard key={product.id} product={product as any} />
+            {finalProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
           <div className="text-center mt-10">
