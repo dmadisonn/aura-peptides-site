@@ -267,7 +267,7 @@ function buildAuraCustomerInvoiceEmail({ product, amount, qty, priceEach, total,
       </td></tr>
       <tr><td style="padding:32px 40px 0;">
         <p style="margin:0;font-size:15px;color:#2c1a0e;line-height:1.7;">Hi <strong>${name}</strong>,</p>
-        <p style="margin:12px 0 0;font-size:14px;color:#6b4a32;line-height:1.7;">We've received your invoice request. A formal invoice will be sent to this address within <strong style="color:#2c1a0e;">24 hours</strong>.</p>
+        <p style="margin:12px 0 0;font-size:14px;color:#6b4a32;line-height:1.7;">We've received your invoice request. Within <strong style="color:#2c1a0e;">24 hours</strong>, a member of our team will contact you by phone at <a href="tel:+16293325351" style="color:#8b5e3c;">(629) 332-5351</a> or by email at <a href="mailto:support@aurapepts.bio" style="color:#8b5e3c;">support@aurapepts.bio</a> with your formal invoice.</p>
       </td></tr>
       <tr><td style="padding:24px 40px 0;">
         <div style="border:1px solid #ddd0c0;border-radius:10px;overflow:hidden;">
@@ -294,7 +294,7 @@ function buildAuraCustomerInvoiceEmail({ product, amount, qty, priceEach, total,
           </tr>
           <tr>
             <td style="width:28px;vertical-align:top;padding-top:2px;"><div style="width:20px;height:20px;border-radius:50%;background:#8b5e3c;text-align:center;line-height:20px;font-size:11px;font-weight:700;color:#faf7f4;">2</div></td>
-            <td style="padding:0 0 12px 10px;font-size:13px;color:#6b4a32;line-height:1.5;">Invoice sent to <strong style="color:#2c1a0e;">${email}</strong> within 24 hours.</td>
+            <td style="padding:0 0 12px 10px;font-size:13px;color:#6b4a32;line-height:1.5;">We contact you at <strong style="color:#2c1a0e;">${email}</strong> or <strong style="color:#2c1a0e;">(629) 332-5351</strong> within 24 hours with your invoice.</td>
           </tr>
           <tr>
             <td style="width:28px;vertical-align:top;padding-top:2px;"><div style="width:20px;height:20px;border-radius:50%;background:#8b5e3c;text-align:center;line-height:20px;font-size:11px;font-weight:700;color:#faf7f4;">3</div></td>
