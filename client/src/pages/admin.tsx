@@ -36,7 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { apiRequest, clearAdminToken, queryClient } from "@/lib/queryClient";
+import { apiRequest, clearAdminToken, queryClient, getAdminToken } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useFeatureFlags, type FeatureFlags } from "@/hooks/use-feature-flags";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -163,9 +163,9 @@ function ImageUpload({
       toast({ title: "File too large", description: "Maximum file size is 5MB", variant: "destructive" });
       return;
     }
-    const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+    const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/jpg"];
     if (!allowed.includes(file.type)) {
-      toast({ title: "Invalid file type", description: "Only PNG, JPG, WEBP, and GIF are allowed", variant: "destructive" });
+      toast({ title: "Invalid file type", description: "Only PNG, JPG, and WEBP images are allowed here. For PDFs, use the COA upload section.", variant: "destructive" });
       return;
     }
 
@@ -173,10 +173,12 @@ function ImageUpload({
     try {
       const formData = new FormData();
       formData.append("image", file);
+      const adminToken = getAdminToken();
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData,
         credentials: "include",
+        headers: adminToken ? { "x-admin-token": adminToken } : {},
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

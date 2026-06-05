@@ -492,6 +492,22 @@ app.get("/api/certificates", async (req, res) => {
   catch (e) { res.json([]); }
 });
 
+// ── Image Upload ──────────────────────────────────────────────────────────────
+app.post("/api/admin/upload", (req, res, next) => {
+  const tok = req.headers["x-admin-token"] || req.query.token;
+  if (tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  next();
+}, upload.single("image"), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file provided" });
+  const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/jpg"];
+  if (!allowed.includes(req.file.mimetype)) {
+    return res.status(400).json({ error: "Only PNG, JPG, WEBP, and GIF images are allowed" });
+  }
+  const base64 = req.file.buffer.toString("base64");
+  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+  res.json({ imageUrl: dataUrl });
+});
+
 app.post("/api/admin/certificates", upload.single("file"), async (req, res) => {
   const _tok = req.headers["x-admin-token"] || req.query.token;
   if (_tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
