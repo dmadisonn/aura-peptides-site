@@ -1,4 +1,5 @@
 const express = require("express");
+const PDFDocument = require("pdfkit");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const session = require("express-session");
@@ -58,7 +59,6 @@ async function sendEmail({ to, subject, html }) {
 // ── PDF Invoice Generator ────────────────────────────────────────────────────
 function generateInvoicePDF({ invoiceNumber, date, product, amount, qty, priceEach, total, name, email, org, brand }) {
   return new Promise((resolve, reject) => {
-    const PDFDocument = require("pdfkit");
     const chunks = [];
     const doc = new PDFDocument({ margin: 50, size: "LETTER" });
     doc.on("data", chunk => chunks.push(chunk));
@@ -135,7 +135,7 @@ function generateInvoicePDF({ invoiceNumber, date, product, amount, qty, priceEa
     // Table row
     const rowH = 32;
     doc.rect(50, y - 4, doc.page.width - 100, rowH).fill(isAura ? "#f0e8df" : "#1a1510");
-    const productLabel = amount ? \`\${product} · \${amount}\` : product;
+    const productLabel = amount ? `\${product} · \${amount}` : product;
     doc.fontSize(10).fillColor(TEXT_DARK).font("Helvetica-Bold").text(productLabel, 60, y + 4, { width: 290 });
     doc.fontSize(10).fillColor(TEXT_MID).font("Helvetica")
       .text(String(qty), 360, y + 4, { width: 50, align: "right" })
