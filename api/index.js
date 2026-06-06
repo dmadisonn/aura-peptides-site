@@ -783,6 +783,47 @@ app.post("/api/affiliate/signup", async (req, res) => {
       [id, name, email.toLowerCase(), code.toUpperCase(), phone || null, payoutMethod || null, payoutHandle || null]
     );
     res.json({ success: true, message: "Application received! We review applications within 1–2 business days and will email you once approved." });
+
+    // Notify admin of new affiliate application
+    const ADMIN_EMAIL = "darcimadisonllc@icloud.com";
+    const adminHtml = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#0d0b08;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0b08;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" style="background:#141210;border-radius:12px;overflow:hidden;border:1px solid #2a2218;">
+      <tr><td style="background:#0d0b08;padding:28px 36px;border-bottom:2px solid #b8884c;">
+        <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#b8884c;">Aura Peptides</p>
+        <h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;">New Affiliate Application</h1>
+      </td></tr>
+      <tr><td style="padding:28px 36px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;width:130px;">Name</td><td style="padding:8px 0;font-size:13px;color:#e5e0d8;font-weight:600;">${name}</td></tr>
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;">Email</td><td style="padding:8px 0;font-size:13px;"><a href="mailto:${email}" style="color:#b8884c;text-decoration:none;">${email}</a></td></tr>
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;">Phone</td><td style="padding:8px 0;font-size:13px;color:#ccc;">${phone || "—"}</td></tr>
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;">Referral Code</td><td style="padding:8px 0;font-size:13px;color:#b8884c;font-family:monospace;font-weight:700;">${code.toUpperCase()}</td></tr>
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;">Payout Method</td><td style="padding:8px 0;font-size:13px;color:#ccc;">${payoutMethod || "—"}</td></tr>
+          <tr><td style="padding:8px 0;font-size:13px;color:#666;">Payout Handle</td><td style="padding:8px 0;font-size:13px;color:#ccc;">${payoutHandle || "—"}</td></tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:0 36px 28px;">
+        <div style="background:#1e1b17;border:1px solid rgba(184,136,76,0.25);border-radius:8px;padding:14px 18px;">
+          <p style="margin:0;font-size:12px;color:#888;line-height:1.6;">
+            Review and approve this application in your <strong style="color:#b8884c;">Admin Panel → Affiliates tab</strong>. The applicant will not have access until approved.
+          </p>
+        </div>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+
+    try {
+      await sendEmail({ to: ADMIN_EMAIL, subject: `New Affiliate Application — ${name} (${code.toUpperCase()})`, html: adminHtml });
+    } catch (emailErr) {
+      console.error("Affiliate notification email failed:", emailErr);
+    }
+
   } catch (err) {
     console.error("Affiliate signup error:", err);
     res.status(500).json({ error: "Something went wrong. Please try again or contact support." });
