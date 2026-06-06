@@ -21,6 +21,11 @@ async function migrateDescriptions() {
     for (const [newCat, oldCat] of catMap) {
       await q("UPDATE products SET category=$1 WHERE category=$2", [newCat, oldCat]);
     }
+    // Remove FDA-regulated prescription drug products
+    const removeSlugs = ['retatrutide','retatrutide-12mg','cagri-sema','tirzepatide','tesofensine'];
+    for (const slug of removeSlugs) {
+      await q("DELETE FROM products WHERE slug=$1", [slug]);
+    }
     console.log("Description migration complete");
   } catch(e) { console.log("Migration note:", e.message); }
 }
