@@ -752,6 +752,76 @@ app.post("/api/admin/affiliates/:id/unpay", async (req, res) => {
   res.json({ count: 0 });
 });
 
+// ── Public Affiliate Signup ─────────────────────────────────────────────────────
+app.post("/api/affiliate/signup", async (req, res) => {
+  try {
+    const { name, email, phone, code, payoutMethod, payoutHandle } = req.body;
+    if (!name || !email || !code) {
+      return res.status(400).json({ error: "Name, email, and referral code are required." });
+    }
+    // Validate code format: 1-10 alphanumeric
+    if (!/^[A-Za-z0-9]{1,10}$/.test(code)) {
+      return res.status(400).json({ error: "Referral code must be 1–10 letters and numbers only, no spaces or special characters." });
+    }
+    await q(`CREATE TABLE IF NOT EXISTS affiliates (
+      id TEXT PRIMARY KEY, name TEXT, email TEXT UNIQUE, code TEXT UNIQUE,
+      commission_rate INTEGER DEFAULT 10, referral_discount INTEGER DEFAULT 0,
+      approved BOOLEAN DEFAULT false, phone TEXT, payout_method TEXT, payout_handle TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    // Check for duplicates
+    const [existing] = await q("SELECT id FROM affiliates WHERE LOWER(email)=LOWER($1) OR LOWER(code)=LOWER($2)", [email, code]);
+    if (existing) {
+      const [emailTaken] = await q("SELECT id FROM affiliates WHERE LOWER(email)=LOWER($1)", [email]);
+      if (emailTaken) return res.status(409).json({ error: "That email is already registered as an affiliate." });
+      return res.status(409).json({ error: "That referral code is already taken. Please choose a different one." });
+    }
+    const id = "aff_" + Date.now();
+    await q(
+      `INSERT INTO affiliates (id, name, email, code, phone, payout_method, payout_handle, approved)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false)`,
+      [id, name, email.toLowerCase(), code.toUpperCase(), phone || null, payoutMethod || null, payoutHandle || null]
+    );
+    res.json({ success: true, message: "Application received! We review applications within 1–2 business days and will email you once approved." });
+  } catch (err) {
+    console.error("Affiliate signup error:", err);
+    res.status(500).json({ error: "Something went wrong. Please try again or contact support." });
+  }
+});
+
+// ── Affiliate Magic Link (login) ──────────────────────────────────────────────
+app.post("/api/affiliate/request-magic-link", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required." });
+    const [affiliate] = await q("SELECT * FROM affiliates WHERE LOWER(email)=LOWER($1)", [email]);
+    // Always return success to prevent email enumeration
+    res.json({ success: true, message: "If that email is registered, you'll receive a login link shortly." });
+    if (!affiliate) return;
+    // In production, send a magic link email here
+    // For now, log so admin can manually assist
+    console.log(`Magic link requested for affiliate: ${email}`);
+  } catch (err) {
+    console.error("Magic link error:", err);
+    res.status(500).json({ error: "Something went wrong." });
+  }
+});
+
+// ── Affiliate Dashboard (by code) ────────────────────────────────────────────
+app.get("/api/affiliate/dashboard", async (req, res) => {
+  try {
+    const { code } = req.query;
+    if (!code) return res.status(400).json({ error: "Code required." });
+    const [affiliate] = await q("SELECT * FROM affiliates WHERE LOWER(code)=LOWER($1)", [code]);
+    if (!affiliate) return res.status(404).json({ error: "Affiliate not found." });
+    res.json({ affiliate });
+  } catch (err) {
+    res.status(500).json({ error: "Something went wrong." });
+  }
+});
+
+
+
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", db: !!pool, timestamp: new Date().toISOString() });
