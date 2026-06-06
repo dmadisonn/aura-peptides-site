@@ -863,6 +863,22 @@ app.get("/api/affiliate/dashboard", async (req, res) => {
 
 
 
+// ── COA Upload (PDF or image, linked to product) ──────────────────────────────
+app.post("/api/admin/upload-coa", (req, res, next) => {
+  const tok = req.headers["x-admin-token"] || req.query.token;
+  if (tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
+  next();
+}, upload.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file provided" });
+  const allowed = ["application/pdf", "image/png", "image/jpeg", "image/webp", "image/jpg"];
+  if (!allowed.includes(req.file.mimetype)) {
+    return res.status(400).json({ error: "Invalid file type. PDF, PNG, or JPG only." });
+  }
+  const base64 = req.file.buffer.toString("base64");
+  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+  res.json({ fileUrl: dataUrl });
+});
+
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", db: !!pool, timestamp: new Date().toISOString() });

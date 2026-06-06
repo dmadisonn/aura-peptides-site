@@ -321,6 +321,65 @@ function ImageUpload({
   );
 }
 
+function CoaUploadField({ currentUrl, onUrlChange }: { currentUrl: string; onUrlChange: (url: string) => void }) {
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    const allowed = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      toast({ title: "Invalid file", description: "Only PDF, PNG, or JPG files allowed.", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload-coa", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      onUrlChange(data.fileUrl);
+      toast({ title: "COA uploaded" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 items-center">
+        <Input
+          value={currentUrl}
+          onChange={(e) => onUrlChange(e.target.value)}
+          placeholder="https://... or upload a PDF/image below"
+          className="text-xs"
+        />
+        {currentUrl && (
+          <a href={currentUrl} target="_blank" rel="noopener noreferrer">
+            <Button type="button" size="sm" variant="outline" className="shrink-0 text-xs px-2">View</Button>
+          </a>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" className="hidden"
+          onChange={(e) => { if (e.target.files?.[0]) handleUpload(e.target.files[0]); }} />
+        <Button type="button" size="sm" variant="outline" className="text-xs"
+          onClick={() => fileRef.current?.click()} disabled={uploading}>
+          <Upload className="mr-1.5 h-3 w-3" />
+          {uploading ? "Uploading..." : "Upload PDF or Image"}
+        </Button>
+        {currentUrl && (
+          <Button type="button" size="sm" variant="ghost" className="text-xs text-muted-foreground"
+            onClick={() => onUrlChange("")}>Clear</Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ProductForm({
   product,
   onSuccess,
@@ -343,6 +402,7 @@ function ProductForm({
     inStock: product?.inStock ?? true,
     featured: product?.featured ?? false,
     researchHighlights: product?.researchHighlights?.join("\n") ?? "",
+    coaUrl: product?.coaUrl ?? "",
   });
 
   const mutation = useMutation({
@@ -362,6 +422,7 @@ function ProductForm({
           .split("\n")
           .map((s) => s.trim())
           .filter(Boolean),
+        coaUrl: form.coaUrl || null,
       };
 
       if (isEdit) {
@@ -489,6 +550,14 @@ function ProductForm({
       />
 
       <div>
+        <div>
+          <Label className="text-xs mb-1.5 block">COA / Document URL</Label>
+          <CoaUploadField
+            currentUrl={form.coaUrl}
+            onUrlChange={(url) => setForm({ ...form, coaUrl: url })}
+          />
+        </div>
+
         <Label className="text-xs mb-1.5 block">Research Highlights (one per line)</Label>
         <Textarea
           value={form.researchHighlights}
