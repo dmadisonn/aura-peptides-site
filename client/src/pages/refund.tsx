@@ -9,8 +9,8 @@ export default function RefundPage() {
         <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
 
           <section className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-5">
-            <p className="font-bold text-foreground uppercase tracking-wide text-xs mb-2">⚠ Research Use Only</p>
-            <p>All products sold by Aura Peptides are strictly for in-vitro laboratory and research use only. Not for human or veterinary use.</p>
+            <p className="font-bold text-foreground uppercase tracking-wide text-xs mb-2">⚠ Verified Researchers Only</p>
+            <p>All products sold by Aura Peptides are strictly for in-vitro laboratory and verified researchers only. Available exclusively to qualified researchers and academic institutions.</p>
           </section>
 
           <section>

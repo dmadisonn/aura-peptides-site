@@ -41,8 +41,8 @@ export default function CartPage() {
   const { data: paymentMethodsData } = useQuery<{ stripeEnabled: boolean; invoiceEnabled: boolean }>({
     queryKey: ["/api/settings/payment-methods"],
   });
-  const stripeEnabled = paymentMethodsData?.stripeEnabled ?? true;
-  const invoiceEnabled = paymentMethodsData?.invoiceEnabled ?? false;
+  const stripeEnabled = false; // Invoice-only model
+  const invoiceEnabled = true;
 
   useEffect(() => {
     if (shippingOptions && shippingOptions.length > 0 && !selectedShipping) {
@@ -631,7 +631,7 @@ export default function CartPage() {
               </div>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed text-center" data-testid="text-cart-disclaimer">
-              For research use only. Not for human or veterinary use. Not intended for diagnostic or therapeutic purposes.
+              All compounds are supplied exclusively to verified laboratory researchers and academic institutions for in-vitro scientific study.
             </p>
           </div>
         </div>

@@ -1,3 +1,30 @@
+
+// One-time description migration for compliance
+async function migrateDescriptions() {
+  try {
+    const updates = [
+      ["GHK-Cu is a naturally occurring copper-peptide complex studied in vitro for interactions with matrix metalloproteinases, fibroblast activity, and collagen synthesis signaling pathways.", "Skin Research", "ghk-cu"],
+      ["BPC-157 is a pentadecapeptide fragment derived from human gastric juice protein. Investigated in laboratory models for cellular migration, angiogenesis signaling, and growth factor receptor modulation.", "Peptide Research", "bpc-157"],
+      ["TB-500 is a synthetic analogue of Thymosin Beta-4. Studied in vitro for actin-binding properties, cellular motility mechanisms, and cytokine interaction in laboratory assay systems.", "Peptide Research", "tb-500"],
+      ["Ipamorelin is a selective ghrelin receptor agonist. Investigated in laboratory models for GHRP receptor binding selectivity and downstream signal transduction pathways.", "Metabolic Research", "ipamorelin"],
+      ["CJC-1295 (No DAC) is a GHRH analogue studied in vitro for receptor binding affinity at GHRH-R and downstream cAMP signaling cascades in laboratory cell models.", "Metabolic Research", "cjc-1295"],
+      ["Selank is a heptapeptide analogue of tuftsin. Studied in laboratory models for immunomodulatory properties and interactions with GABA receptor pathways and neurotrophic factors.", "Neurological Research", "selank"],
+      ["Semax is a synthetic heptapeptide analogue of ACTH(4-10). Investigated in cell-based assays for interactions with BDNF expression, dopaminergic signaling, and neuropeptide receptor binding.", "Neurological Research", "semax"],
+      ["Epithalon is a synthetic tetrapeptide studied in laboratory models for interactions with telomerase activity, chromatin remodeling, and epigenetic modulation pathways.", "Longevity Research", "epithalon"],
+      ["PT-141 (Bremelanotide) is a cyclic heptapeptide melanocortin receptor agonist studied in vitro for binding affinity at MC3R and MC4R receptors and downstream cAMP signal transduction.", "Receptor Research", "pt-141"],
+    ];
+    for (const [desc, cat, slug] of updates) {
+      await q("UPDATE products SET description=$1, category=$2, updated_at=NOW() WHERE slug=$3", [desc, cat, slug]);
+    }
+    // Also update remaining categories
+    const catMap = [["Skin Research","Skin & Healing"],["Peptide Research","Healing & Recovery"],["Peptide Research","Recovery & Flexibility"],["Longevity Research","Longevity & Anti-Aging"],["Receptor Research","Performance"],["Metabolic Research","Growth & Metabolism"],["Neurological Research","Cognitive & Mood"]];
+    for (const [newCat, oldCat] of catMap) {
+      await q("UPDATE products SET category=$1 WHERE category=$2", [newCat, oldCat]);
+    }
+    console.log("Description migration complete");
+  } catch(e) { console.log("Migration note:", e.message); }
+}
+
 const express = require("express");
 const PDFDocument = require("pdfkit");
 const multer = require("multer");
@@ -727,3 +754,5 @@ app.get("/api/health", (req, res) => {
 
 module.exports = app;
 // Thu Jun  4 22:42:37 UTC 2026
+
+migrateDescriptions();

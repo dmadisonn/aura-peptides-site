@@ -11,9 +11,9 @@ export default function TermsPage() {
         <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
 
           <section className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-5">
-            <p className="font-bold text-foreground uppercase tracking-wide text-xs mb-2">⚠ Research Use Only — Important Notice</p>
+            <p className="font-bold text-foreground uppercase tracking-wide text-xs mb-2">⚠ Verified Researchers Only — Important Notice</p>
             <p>
-              All products sold by Aura Peptides are intended <strong>strictly for in-vitro laboratory and research use only</strong>. 
+              All products sold by Aura Peptides are intended <strong>strictly for in-vitro laboratory and verified researchers only</strong>. 
               They are <strong>not approved by the U.S. Food and Drug Administration (FDA)</strong> for human or veterinary use, 
               are not intended to diagnose, treat, cure, or prevent any disease or medical condition, and must not be 
               administered to humans or animals under any circumstances. By purchasing from this site you affirm that 

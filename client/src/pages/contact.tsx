@@ -82,8 +82,8 @@ export default function ContactPage() {
             </div>
 
             <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-4 text-xs text-muted-foreground leading-relaxed">
-              <p className="font-bold text-foreground uppercase tracking-wide text-[10px] mb-1">⚠ Research Use Only</p>
-              All products are sold strictly for in-vitro laboratory and scientific research use only. Not for human or veterinary use.
+              <p className="font-bold text-foreground uppercase tracking-wide text-[10px] mb-1">⚠ Verified Researchers Only</p>
+              All products are sold strictly for in-vitro laboratory and scientific verified researchers only. Available exclusively to qualified researchers and academic institutions.
             </div>
           </div>
 

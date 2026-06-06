@@ -10,7 +10,7 @@ const features = [
   { icon: Shield, title: "Research Grade Purity", description: "≥99% purity verified by third-party COA for all compounds." },
   { icon: FlaskConical, title: "Lab Tested", description: "Every batch independently tested and verified." },
   { icon: Sparkles, title: "Fast Fulfillment", description: "Orders processed same business day." },
-  { icon: Leaf, title: "Research Only", description: "Strictly for in-vitro research. Not for human use." },
+  { icon: Leaf, title: "Verified Researchers", description: "Available exclusively to qualified laboratory researchers and academic institutions." },
 ];
 
 export default function HomePage() {
@@ -25,7 +25,7 @@ export default function HomePage() {
       <section className="relative py-24 px-4 bg-gradient-to-br from-background to-muted overflow-hidden">
         <div className="container mx-auto text-center max-w-3xl">
           <AuraLogo className="mx-auto mb-8 h-20 w-auto" />
-          <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mb-4">Research Use Only — Not For Human Consumption</p>
+          <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mb-4">Verified Researchers Only — Invoice-Based Ordering</p>
           <h1 className="text-5xl font-bold tracking-tight mb-6">
             Research Grade<br />Peptide Compounds
           </h1>

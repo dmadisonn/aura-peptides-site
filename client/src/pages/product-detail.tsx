@@ -2,12 +2,12 @@ import { useParams, Link } from "wouter";
 import { ShoppingCart, ArrowLeft, FlaskConical, Shield, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/stores/cart";
+
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProductDetailPage() {
   const params = useParams<{ slug: string }>();
-  const { addItem } = useCart();
+
   const { toast } = useToast();
   const { data: product, isLoading } = useQuery<any>({
     queryKey: [`/api/products/${params?.slug}`],
@@ -23,16 +23,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const handleAddToCart = () => {
-    addItem({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      sku: product.sku,
-    });
-    toast({ title: "Added to cart", description: `${product.name} added to your cart.` });
-  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,7 +36,7 @@ export default function ProductDetailPage() {
             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col gap-4">
-            <Badge variant="outline" className="w-fit">Research Use Only</Badge>
+            <Badge variant="outline" className="w-fit">Verified Researchers Only</Badge>
             <h1 className="text-4xl font-bold">{product.name}</h1>
             <p className="text-muted-foreground text-lg">{product.subtitle}</p>
             <div className="flex items-baseline gap-3">
@@ -56,8 +47,8 @@ export default function ProductDetailPage() {
             </div>
             <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
             <div className="rounded-md border border-yellow-500/40 bg-yellow-500/5 px-4 py-3 text-xs text-muted-foreground space-y-0.5">
-              <p>⚠ <strong className="text-foreground">For laboratory research use only.</strong></p>
-              <p>Not for human consumption.</p>
+              <p>⚠ <strong className="text-foreground">For laboratory verified researchers only.</strong></p>
+              <p>Available to verified laboratory researchers and institutions.</p>
               <p>Not intended to diagnose, treat, cure, or prevent any disease.</p>
             </div>
             <Button size="lg" onClick={handleAddToCart} disabled={!product.inStock}>
@@ -65,8 +56,8 @@ export default function ProductDetailPage() {
               {product.inStock ? "Add to Cart" : "Out of Stock"}
             </Button>
             <div className="border rounded-lg p-4 bg-muted/30 mt-2">
-              <p className="text-sm font-semibold mb-1 flex items-center gap-2"><FlaskConical className="h-4 w-4" /> Research Use Only</p>
-              <p className="text-xs text-muted-foreground">This compound is strictly intended for in-vitro laboratory research. Not for human consumption, injection, or any other use outside of controlled research settings.</p>
+              <p className="text-sm font-semibold mb-1 flex items-center gap-2"><FlaskConical className="h-4 w-4" /> Verified Researchers Only</p>
+              <p className="text-xs text-muted-foreground">This compound is available exclusively to verified researchers for in-vitro laboratory study. Buyer verification required prior to fulfillment.</p>
             </div>
             <div className="mt-2">
               <h3 className="font-semibold mb-2">Description</h3>

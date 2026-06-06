@@ -18,7 +18,7 @@ export function StoreFooter() {
               and quietly precise.
             </p>
             <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground/70">
-              For research use only
+              For verified researchers only
             </p>
           </div>
 
@@ -97,7 +97,7 @@ export function StoreFooter() {
             <p>support@aurapepts.bio &bull; (629) 332-5351</p>
           </div>
           <p className="text-[11px] text-muted-foreground/80 leading-relaxed text-center sm:text-right sm:whitespace-nowrap max-w-xs sm:max-w-none">
-            All products are sold strictly for laboratory research use only. Not for human or veterinary use.
+            All products are sold strictly for laboratory verified researchers only. Available exclusively to qualified researchers and academic institutions.
           </p>
         </div>
 

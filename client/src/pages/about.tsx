@@ -119,7 +119,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           <AuraLogo variant="stacked" className="mx-auto text-foreground" showTagline={true} />
           <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground mt-8">
-            For research use only
+            For verified researchers only
           </p>
           <div className="mt-6 flex justify-center">
             <PoweredByMindctrl testId="link-powered-by-mindctrl-about" />

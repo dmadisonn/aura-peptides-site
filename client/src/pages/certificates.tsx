@@ -69,7 +69,7 @@ export default function CertificatesPage() {
           Every batch is independently tested by U.S. laboratories. Batch numbers, purity results, and test dates are published here for open verification.
         </p>
         <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 border border-yellow-500/30 bg-yellow-500/5 rounded text-[10px] text-yellow-600">
-          ⚠ All products for laboratory research use only · Not for human consumption
+          ⚠ All compounds available exclusively to verified laboratory researchers and institutions
         </div>
       </div>
 
