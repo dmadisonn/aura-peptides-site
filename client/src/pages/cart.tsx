@@ -89,6 +89,9 @@ export default function CartPage() {
 
   const [invoiceSuccess, setInvoiceSuccess] = useState(false);
   const [researchCertified, setResearchCertified] = useState(false);
+  const [researchRole, setResearchRole] = useState("");
+  const [institution, setInstitution] = useState("");
+  const [institutionalEmail, setInstitutionalEmail] = useState("");
   const [invoiceOrderId, setInvoiceOrderId] = useState("");
 
   const invoiceMutation = useMutation({
@@ -230,10 +233,18 @@ export default function CartPage() {
         return;
       }
     }
+    if (!researchRole || !institution.trim()) {
+      toast({
+        title: "Researcher credentials required",
+        description: "Please provide your research role and institution before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!researchCertified) {
       toast({
-        title: "Research certification required",
-        description: "Please certify that you are a qualified researcher before placing an order.",
+        title: "Researcher certification required",
+        description: "Please certify your qualified researcher status before submitting.",
         variant: "destructive",
       });
       return;
@@ -602,8 +613,8 @@ export default function CartPage() {
                 </Button>
                 <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
                   {flags.emails
-                    ? "We'll email you an invoice with payment instructions."
-                    : "We'll follow up with an invoice and payment instructions."}
+                    ? "A team member will contact you within 24 hours at your provided email or by phone at (629) 332-5351 to verify your credentials and issue your invoice."
+                    : "A team member will contact you within 24 hours to verify your researcher credentials before issuing your invoice."}
                 </p>
               </>
             )}
@@ -613,6 +624,53 @@ export default function CartPage() {
                 <p className="text-sm text-muted-foreground">Checkout is temporarily unavailable. Please check back soon.</p>
               </div>
             )}
+
+            {/* Researcher Credentials */}
+            <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+              <p className="text-xs font-semibold">Researcher Credentials <span className="text-destructive">*</span></p>
+              <p className="text-[10px] text-muted-foreground">Required for all orders. Our team will verify your credentials within 24 hours before issuing your invoice.</p>
+              <div>
+                <label className="block text-[10px] text-muted-foreground mb-1">Research Role / Title *</label>
+                <select
+                  value={researchRole}
+                  onChange={(e) => setResearchRole(e.target.value)}
+                  className={`w-full text-xs rounded-md border ${!researchRole ? "border-yellow-500/40" : "border-border"} bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ring`}
+                >
+                  <option value="">— Select your role —</option>
+                  <option>Principal Investigator</option>
+                  <option>Research Scientist</option>
+                  <option>Postdoctoral Researcher</option>
+                  <option>PhD Candidate</option>
+                  <option>Laboratory Technician</option>
+                  <option>Pharmacologist</option>
+                  <option>Biochemist</option>
+                  <option>Medicinal Chemist</option>
+                  <option>Molecular Biologist</option>
+                  <option>Clinical Research Associate</option>
+                  <option>Other Qualified Researcher</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] text-muted-foreground mb-1">Institution / Organization *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Johns Hopkins University, BioTech Corp"
+                  value={institution}
+                  onChange={(e) => setInstitution(e.target.value)}
+                  className={`w-full text-xs rounded-md border ${!institution.trim() ? "border-yellow-500/40" : "border-border"} bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ring`}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-muted-foreground mb-1">Institutional Email <span className="text-muted-foreground">(optional — speeds up verification)</span></label>
+                <input
+                  type="email"
+                  placeholder="you@university.edu"
+                  value={institutionalEmail}
+                  onChange={(e) => setInstitutionalEmail(e.target.value)}
+                  className="w-full text-xs rounded-md border border-border bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+              </div>
+            </div>
 
             {/* Researcher Certification Checkbox */}
             <div className={`rounded-lg border p-4 mt-2 transition-colors ${researchCertified ? 'border-primary/40 bg-primary/5' : 'border-yellow-500/40 bg-yellow-500/5'}`}>
@@ -624,7 +682,7 @@ export default function CartPage() {
                   className="mt-0.5 shrink-0"
                 />
                 <label htmlFor="research-cert" className="text-[11px] text-muted-foreground leading-relaxed cursor-pointer">
-                  <span className="font-semibold text-foreground">I certify that I am a qualified researcher</span> purchasing these compounds exclusively for legitimate in-vitro laboratory research. I am 18 years of age or older, will not use these products for human or animal consumption, and agree to the{" "}
+                  <span className="font-semibold text-foreground">I certify that I hold a qualified research role</span> at the institution listed above, that these compounds will be used exclusively for in-vitro laboratory study, that I am 21 years of age or older, and that I understand fulfillment is contingent on credential verification. I agree to the{" "}
                   <a href="/terms" className="text-primary underline underline-offset-2" target="_blank" rel="noopener noreferrer">Terms of Service</a>.
                   These statements have not been evaluated by the FDA.
                 </label>

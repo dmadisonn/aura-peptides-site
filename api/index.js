@@ -22,7 +22,7 @@ async function migrateDescriptions() {
       await q("UPDATE products SET category=$1 WHERE category=$2", [newCat, oldCat]);
     }
     // Remove FDA-regulated prescription drug products
-    const removeSlugs = ['retatrutide','retatrutide-12mg','cagri-sema','tirzepatide','tesofensine'];
+    const removeSlugs = ['retatrutide','retatrutide-12mg','cagri-sema','tirzepatide','tesofensine','melanotan-ii','melanotan-i','pt-141'];
     for (const slug of removeSlugs) {
       await q("DELETE FROM products WHERE slug=$1", [slug]);
     }
