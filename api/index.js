@@ -33,6 +33,7 @@ async function migrateDescriptions() {
 const express = require("express");
 const PDFDocument = require("pdfkit");
 const multer = require("multer");
+const { put } = require("@vercel/blob");
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const session = require("express-session");
 const { Pool } = require("pg");
@@ -594,15 +595,25 @@ app.post("/api/admin/upload", (req, res, next) => {
   const tok = req.headers["x-admin-token"] || req.query.token;
   if (tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   next();
-}, upload.single("image"), (req, res) => {
+}, upload.single("image"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file provided" });
   const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/jpg"];
   if (!allowed.includes(req.file.mimetype)) {
     return res.status(400).json({ error: "Only PNG, JPG, WEBP, and GIF images are allowed" });
   }
-  const base64 = req.file.buffer.toString("base64");
-  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
-  res.json({ imageUrl: dataUrl });
+  try {
+    const ext = req.file.mimetype.split("/")[1].replace("jpeg","jpg");
+    const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const blob = await put(filename, req.file.buffer, {
+      access: "public",
+      contentType: req.file.mimetype,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    res.json({ imageUrl: blob.url });
+  } catch (e) {
+    console.error("Blob upload error:", e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.post("/api/admin/certificates", upload.single("file"), async (req, res) => {
@@ -868,15 +879,26 @@ app.post("/api/admin/upload-coa", (req, res, next) => {
   const tok = req.headers["x-admin-token"] || req.query.token;
   if (tok !== ADMIN_TOKEN) return res.status(401).json({ error: "Unauthorized" });
   next();
-}, upload.single("file"), (req, res) => {
+}, upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file provided" });
   const allowed = ["application/pdf", "image/png", "image/jpeg", "image/webp", "image/jpg"];
   if (!allowed.includes(req.file.mimetype)) {
     return res.status(400).json({ error: "Invalid file type. PDF, PNG, or JPG only." });
   }
-  const base64 = req.file.buffer.toString("base64");
-  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
-  res.json({ fileUrl: dataUrl });
+  try {
+    const extMap = { "application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/jpg": "jpg" };
+    const ext = extMap[req.file.mimetype] || "bin";
+    const filename = `coas/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const blob = await put(filename, req.file.buffer, {
+      access: "public",
+      contentType: req.file.mimetype,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    res.json({ fileUrl: blob.url });
+  } catch (e) {
+    console.error("COA upload error:", e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Health ─────────────────────────────────────────────────────────────────────
