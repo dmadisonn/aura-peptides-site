@@ -902,6 +902,67 @@ app.post("/api/admin/upload-coa", (req, res, next) => {
 });
 
 // ── Health ─────────────────────────────────────────────────────────────────────
+// ── Contact Form ──────────────────────────────────────────────────────────────
+app.post("/api/contact", async (req, res) => {
+  try {
+    const { name, email, order, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "Name, email, and message are required." });
+    }
+
+    const RESEND_KEY = process.env.RESEND_API_KEY;
+    const ADMIN_EMAIL = "darcimadisonllc@icloud.com";
+
+    if (!RESEND_KEY) return res.status(500).json({ error: "Email service not configured" });
+
+    // Admin notification
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + RESEND_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "Aura Peptides <onboarding@resend.dev>",
+        to: [ADMIN_EMAIL],
+        subject: "Contact Form: " + name + (order ? " (Order #" + order + ")" : ""),
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#fdf9f5;color:#1a1207;">
+          <h2 style="color:#c9a84c;margin-bottom:16px;">New Contact Form — Aura Peptides</h2>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <tr><td style="padding:8px;font-weight:bold;color:#888;width:120px;">Name</td><td style="padding:8px;">${name}</td></tr>
+            <tr style="background:rgba(0,0,0,0.03);"><td style="padding:8px;font-weight:bold;color:#888;">Email</td><td style="padding:8px;"><a href="mailto:${email}" style="color:#c9a84c;">${email}</a></td></tr>
+            <tr><td style="padding:8px;font-weight:bold;color:#888;">Order #</td><td style="padding:8px;">${order || "N/A"}</td></tr>
+            <tr style="background:rgba(0,0,0,0.03);"><td style="padding:8px;font-weight:bold;color:#888;vertical-align:top;">Message</td><td style="padding:8px;white-space:pre-wrap;">${message}</td></tr>
+          </table>
+          <p style="margin-top:16px;font-size:12px;color:#888;">Sent from aurapepts.bio contact form</p>
+        </div>`
+      })
+    });
+
+    // Customer confirmation
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + RESEND_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "Aura Peptides <onboarding@resend.dev>",
+        to: [email],
+        subject: "We received your message — Aura Peptides",
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#fdf9f5;color:#1a1207;">
+          <h2 style="color:#c9a84c;">Thank you, ${name}!</h2>
+          <p style="color:#555;font-size:14px;line-height:1.6;">We received your message and will respond within 1-2 business days.</p>
+          <div style="background:rgba(0,0,0,0.04);border-radius:8px;padding:16px;margin:20px 0;font-size:14px;color:#444;border-left:3px solid #c9a84c;">
+            <strong style="color:#c9a84c;">Your message:</strong><br/><br/>
+            <span style="white-space:pre-wrap;">${message}</span>
+          </div>
+          <p style="color:#888;font-size:13px;">— Aura Peptides<br/>support@aurapepts.bio &middot; (629) 332-5351</p>
+        </div>`
+      })
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Contact form error:", err);
+    res.status(500).json({ error: "Failed to send message" });
+  }
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", db: !!pool, timestamp: new Date().toISOString() });
 });
